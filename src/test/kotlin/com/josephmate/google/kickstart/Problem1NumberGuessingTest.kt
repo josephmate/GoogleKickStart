@@ -66,6 +66,51 @@ class Problem1NumberGuessingTest {
         runTestCase(testCase)
     }
 
+    @Test fun testWrongAnswerShouldStop() {
+        val testCase = { writerToSolver: PrintStream, reader: BufferedReader ->
+            println("TESTCASE: sending input")
+            writerToSolver.println("1")
+            writerToSolver.println("0 100")
+            writerToSolver.println("100")
+
+            println("TESTCASE: reading response")
+            reader.readLine()
+            println("TESTCASE: telling it to stop")
+            writerToSolver.println("WRONG_ANSWER")
+            writerToSolver.close();
+            reader.close();
+        }
+        runTestCase(testCase)
+    }
+
+    @Test fun testMultipleIterationsToAnswer() {
+        val testCase = { writerToSolver: PrintStream, reader: BufferedReader ->
+            println("TESTCASE: sending input")
+            writerToSolver.println("1")
+            writerToSolver.println("0 100")
+            writerToSolver.println("100")
+            println("TESTCASE: reading response")
+            val firstResponse = reader.readLine().toInt()
+
+            println("TESTCASE: telling solver need larger")
+            writerToSolver.println("TOO_SMALL")
+            val biggerResponse = reader.readLine().toInt()
+            Assert.assertTrue(biggerResponse > firstResponse)
+
+            println("TESTCASE: telling solver need smaller")
+            writerToSolver.println("TOO_BIG")
+            val biggerSmallerResponse = reader.readLine().toInt()
+            Assert.assertTrue(biggerSmallerResponse > firstResponse)
+            Assert.assertTrue(biggerSmallerResponse < biggerResponse)
+
+            println("TESTCASE: telling solver done")
+            writerToSolver.println("CORRECT")
+            writerToSolver.close();
+            reader.close();
+        }
+        runTestCase(testCase)
+    }
+
     private fun runTestCase(testCase:(PrintStream, BufferedReader) -> Unit) {
         val solverReceivingFromTestClass = PipedInputStream()
         val testClassSendingToSolver = PipedOutputStream()

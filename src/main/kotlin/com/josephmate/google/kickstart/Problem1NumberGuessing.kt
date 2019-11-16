@@ -14,10 +14,12 @@ class Solver() {
             val lower = scanner.nextInt();
             val upper = scanner.nextInt();
             val maxGuess = scanner.nextInt();
+            val emptyLine = scanner.nextLine();
             var guessState = Guess(lower, upper);
 blah@       for(guess in 1..maxGuess) {
                 output.println(guessState.currentGuess());
-                when(scanner.nextLine()) {
+                val line = scanner.nextLine();
+                when(line) {
                     "TOO_SMALL" -> {
                         guessState = guessState.guessUpper();
                     } "TOO_BIG" -> {
@@ -27,7 +29,7 @@ blah@       for(guess in 1..maxGuess) {
                     } "WRONG_ANSWER" -> {
                         return;
                     } else -> {
-                        return // unexpected
+                        throw RuntimeException("got unexpected line: $line") // unexpected
                     }
                 }
             }
