@@ -126,7 +126,7 @@ class Problem1NumberGuessingTest {
             val solverFuture = executorService.submit(Callable<Throwable>(){
                 try {
                     println("SOLVER: starting")
-                    Solver().solve(solverReceivingFromTestClass, PrintStream(fromSolverToTestClass))
+                    NumberGuessingSolver().solve(solverReceivingFromTestClass, PrintStream(fromSolverToTestClass))
                     println("SOLVER: finished")
                 } catch(t: Throwable) {
                     return@Callable t;

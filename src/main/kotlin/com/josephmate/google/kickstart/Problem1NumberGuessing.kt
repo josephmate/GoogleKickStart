@@ -5,7 +5,7 @@ import java.io.PrintStream
 import java.util.*
 
 
-class Solver() {
+class NumberGuessingSolver() {
 
     fun solve(input: InputStream, output: PrintStream) {
         val scanner = Scanner(input);
@@ -65,5 +65,5 @@ class Guess(lower: Int, upper: Int) {
 }
 
 fun main(args: Array<String>) {
-    Solver().solve(System.`in`, System.out)
+    NumberGuessingSolver().solve(System.`in`, System.out)
 }
