@@ -1,5 +1,44 @@
 package com.josephmate.google.kickstart
 
+import java.io.InputStream
+import java.io.PrintStream
+import java.util.*
+
+
+class Solver() {
+
+    fun solve(input: InputStream, output: PrintStream) {
+        val scanner = Scanner(input);
+        val numTestCases = scanner.nextInt();
+        for(testCase in 1..numTestCases) {
+            val lower = scanner.nextInt();
+            val upper = scanner.nextInt();
+            val maxGuess = scanner.nextInt();
+            var guessState = Guess(lower, upper);
+blah@       for(guess in 1..maxGuess) {
+                output.println(guessState.currentGuess());
+                when(scanner.nextLine()) {
+                    "TOO_SMALL" -> {
+                        guessState = guessState.guessUpper();
+                    } "TOO_BIG" -> {
+                        guessState = guessState.guessLower();
+                    } "CORRECT" -> {
+                        break@blah;
+                    } "WRONG_ANSWER" -> {
+                        return;
+                    } else -> {
+                        return // unexpected
+                    }
+                }
+            }
+        }
+        input.close();
+        output.close();
+    }
+
+}
+
+
 class Guess(lower: Int, upper: Int) {
 
     private val lower = lower
@@ -14,7 +53,7 @@ class Guess(lower: Int, upper: Int) {
     }
 
     fun isValid(): Boolean {
-        return lower < upper
+        return lower <= upper
     }
 
     fun currentGuess(): Int {
@@ -24,4 +63,5 @@ class Guess(lower: Int, upper: Int) {
 }
 
 fun main(args: Array<String>) {
+    Solver().solve(System.`in`, System.out)
 }
