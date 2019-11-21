@@ -32,6 +32,24 @@ class Problem2MuralTest {
         )
     }
 
+    @Test fun testBig() {
+        val expected = 5000000/2
+        val input: StringBuilder = StringBuilder()
+        for( i in 1..5000000) {
+            input.append("1")
+        }
+        runTestCase(
+                listOf(
+                        "1",
+                        "5000000",
+                        input.toString()
+                ), listOf(
+                "Case #1: $expected",
+                ""
+                )
+        )
+    }
+
     private fun runTestCase(inputLines: List<String>, expectedResult: List<String>) {
         val bos = ByteArrayOutputStream()
         val printWriter = PrintStream(bos);
