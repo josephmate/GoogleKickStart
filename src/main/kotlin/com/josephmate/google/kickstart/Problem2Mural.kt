@@ -23,6 +23,12 @@ import kotlin.collections.HashMap
  * but the painter would not allow that. The correct result should be 4+4 for the painter. The painter selects the right
  * most position first, prevent the destruction from capturing the remaining 4.
  * </p>
+ * <p>
+ * After fixing my naive solution by getting the adversary to minimize the score, I was wrong about 13331 in my second
+ * paragraph. The answer is 9. The painter can pick the middle 3. If the adversary picks the left most 1, then the painter
+ * can pick the left position, preventing the adversary from consuming the 3 on the fourth turn. If adversary picks the right
+ * most 1, then the painter can pick the right 3 to prevent the adversary from consuming the 3 on the fourth turn.
+ * </p>
  */
 class MuralSolver() {
 
@@ -70,27 +76,34 @@ fun encodeStart(numOfDigits: Int, paintPosn: Int): PaintState {
 }
 
 fun iterateDestruction(memoizationMap: MutableMap<PaintState, Int>, wallBeautyScore: String, paintState: PaintState): Int {
+    // base case
+    if(!paintState.canAdvanceLeftDestruction() && !paintState.canAdvanceRightDestruction()) {
+        memoizationMap[paintState] = 0
+        return 0;
+    }
+
     val alreadyComputed: Int? = memoizationMap[paintState]
     if(alreadyComputed != null) {
         return alreadyComputed
     }
 
-    var max = 0;
+
+    var min = Integer.MAX_VALUE;
     if(paintState.canAdvanceLeftDestruction()) {
         val current = iteratePaint(memoizationMap, wallBeautyScore, paintState.advanceLeftDestruction())
-        if(current > max) {
-            max = current
+        if(current < min) {
+            min = current
         }
     }
     if(paintState.canAdvanceRightDestruction()) {
         val current = iteratePaint(memoizationMap, wallBeautyScore, paintState.advanceRightDestruction())
-        if(current > max) {
-            max = current
+        if(current < min) {
+            min = current
         }
     }
 
-    memoizationMap[paintState] = max
-    return max
+    memoizationMap[paintState] = min
+    return min
 }
 
 fun iteratePaint(memoizationMap: MutableMap<PaintState, Int>, wallBeautyScore: String, paintState: PaintState): Int {

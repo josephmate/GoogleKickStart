@@ -31,7 +31,7 @@ class Problem2MuralTest {
                     "Case #2: 14",
                     "Case #3: 7",
                     "Case #4: 31",
-                    "Case #5: 7",
+                    "Case #5: 9",
                     "Case #6: 8",
                     ""
                 )
