@@ -1,6 +1,5 @@
 package com.josephmate.google.kickstart
 
-import java.awt.Paint
 import java.io.InputStream
 import java.io.PrintStream
 import java.util.*
@@ -29,8 +28,54 @@ import kotlin.collections.HashMap
  * can pick the left position, preventing the adversary from consuming the 3 on the fourth turn. If adversary picks the right
  * most 1, then the painter can pick the right 3 to prevent the adversary from consuming the 3 on the fourth turn.
  * </p>
+ * <p>
+ * Now I'm starting to think back to my second point that I thought was wrong. Maybe given the restrictions of the problem
+ * the painter has way to choose any N/2 contiguous space, and the adversary can do nothing about it.
+ * </p>
+ * <p>
+ * <ol>
+ *     <li> Assume that there exists a N/2 chunk that the painter cannot pick. </li>
+ *     <li> Let i be the point that the point that painter started from </li>
+ *     <li> Let that chunk be the indexes from from k to k + N/2 </li>
+ *     <li> That means after all turns, the adversary owns index k </li>
+ *     <li> That means the painter is left with k + N/2 + 1, which he did not want </li>
+ *     <li> But then the painter could have started at i - 1 instead, to arrive at index k before the adversary,
+ *          giving up index k + N/2 + 1 <li>
+ *     <li> Not rigorous enough, because maybe if I take k, then the adversary will force me to take k-1 somehow, and
+ *          I won't  be able to take k + N/2 anymore? </li>
+ * </ol>
+ * At this point I think it might work, so I'll just try it out and see what happens.
  */
 class MuralSolver() {
+
+    fun solve(input: InputStream, output: PrintStream) {
+        val scanner = Scanner(input);
+        val numTestCases = scanner.nextInt();
+        for(testCase in 1..numTestCases) {
+            val numOfDigits = scanner.nextInt()
+            scanner.nextLine() // read the rest of the line
+            val line = scanner.nextLine()
+            val beautyScores = line.toCharArray()
+                    .map{character -> character.toInt() - 48}
+
+            val guaranteedPainterSize = numOfDigits/2 + numOfDigits % 2
+            var maxSum = beautyScores.subList(0, guaranteedPainterSize).sum()
+            var currentSum = maxSum
+            for(i in guaranteedPainterSize until numOfDigits) {
+                val digitToSubtract = beautyScores[i - guaranteedPainterSize]
+                val digitToAdd = beautyScores[i]
+                currentSum = currentSum - digitToSubtract + digitToAdd
+                if(currentSum > maxSum) {
+                    maxSum = currentSum
+                }
+            }
+
+            output.println("Case #$testCase: $maxSum")
+        }
+    }
+}
+
+class SlowMuralSolver() {
 
     fun solve(input: InputStream, output: PrintStream) {
         val scanner = Scanner(input);
