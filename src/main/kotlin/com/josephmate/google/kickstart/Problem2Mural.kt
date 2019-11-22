@@ -6,7 +6,24 @@ import java.io.PrintStream
 import java.util.*
 import kotlin.collections.HashMap
 
-
+/**
+ * First I tried iterating all possible moves by the adversary and the painter, looking for the max. However,
+ * that recursion requires too much stack. Also that first method gets 13331 wrong so it still needs improvement.
+ * 13331 should be 3+3+1=7.
+ * <p>
+ * Second, I started thinking about what the end state would look like. 1 contiguous block of size N/2 for the
+ * painter and one or two remaining contiguous blocks for the adversary. So then I thought what if you have a
+ * N/2 size window and shift it from left to right, remembering the max. Unfortunately, that doesn't work because
+ * of the case 13331. The window would find 333 as the max, but the adversary would take 13 or 31, and would not
+ * allow the painter to get all 3 3's.
+ * </p>
+ * <p>
+ * Third, I tried to build on that and try to maximize the adversary by looking at all possible i + j = N/2 contiguous
+ * spaces. Unfortunately, that doesn't work either because of the case 0044. The adversary would take 44 as the maximum
+ * but the painter would not allow that. The correct result should be 4+4 for the painter. The painter selects the right
+ * most position first, prevent the destruction from capturing the remaining 4.
+ * </p>
+ */
 class MuralSolver() {
 
     fun solve(input: InputStream, output: PrintStream) {

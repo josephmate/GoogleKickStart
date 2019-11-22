@@ -13,7 +13,7 @@ class Problem2MuralTest {
     @Test fun test() {
         runTestCase(
                 listOf(
-                    "4",
+                    "6",
                     "4",
                     "1332",
                     "4",
@@ -21,12 +21,18 @@ class Problem2MuralTest {
                     "3",
                     "616",
                     "10",
-                    "1029384756"
+                    "1029384756",
+                    "5",
+                    "13331",
+                    "4",
+                    "0044"
                 ), listOf(
                     "Case #1: 6",
                     "Case #2: 14",
                     "Case #3: 7",
                     "Case #4: 31",
+                    "Case #5: 7",
+                    "Case #6: 8",
                     ""
                 )
         )
