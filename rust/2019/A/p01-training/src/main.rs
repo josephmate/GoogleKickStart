@@ -8,6 +8,18 @@ use std::io::{self, Read};
 // N_T P_T
 // S_1 S_2 S_3 ... S_N_T
 
+/// To solve this problem, notice two key properties.
+/// Firstly, to consider all possible solutions, you need to go from the least trained to the most trained students.
+/// Secondly, you could naively move a pointer from smallest to largest.
+///     For each movement of the pointer, create a second pointer starting at the current pointer and keep moving it
+///     left until you have enough students, keeping track of the training necessary.
+/// This is O(N*N) in the worst case.
+/// 
+/// To improve this, I noticed that if you start from the left, and keep moving the point to the right until it's
+/// 'full', keeping track the amount of training need as you're moving the pointer.
+/// Now you keep a second pointer at the least skilled player. Move the first pointer to the right by one, then update
+/// the left pointer until you have enough just enough players. Make sure to keep track of the min training needed so far.
+/// This is O(2*N) because you point pointers only move to the right, so they cannot return to a previous student.
 fn solve_scores(
     num_to_pick: i32,
     player_scores: Vec<i32>
