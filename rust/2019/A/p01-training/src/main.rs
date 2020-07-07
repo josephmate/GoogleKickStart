@@ -1,4 +1,5 @@
-use std::io::{self, Read};
+use std::io;
+use std::collections::BTreeMap;
 
 // input format:
 // T
@@ -7,6 +8,75 @@ use std::io::{self, Read};
 // ...
 // N_T P_T
 // S_1 S_2 S_3 ... S_N_T
+
+struct TrainingTracker <'a> {
+    min_so_far: i32,
+    players_so_far: i32,
+    training_so_far: i32,
+    num_players_at_level: BTreeMap<i32, i32>,
+    lowest_level_so_far_level: i32, 
+    lowest_level_so_far_count: i32, 
+    highest_level_so_far_level: i32, 
+    highest_level_so_far_count: i32, 
+    lowest_level_so_far_itr: &'a dyn std::iter::Iterator<Item =  i32>,
+    highest_level_so_far_itr: &'a dyn std::iter::Iterator<Item =  i32>
+}
+
+fn group_players_by_level<'a>(player_scores: Vec<i32>) -> BTreeMap<i32, i32> {
+    let mut num_players_at_level = BTreeMap::new();
+    for player_score in player_scores {
+        match num_players_at_level.get(&player_score) {
+            Some(player_count) => num_players_at_level.insert(player_score, player_count + 1),
+            None => num_players_at_level.insert(player_score, 1)
+         };
+    }
+    return num_players_at_level;
+}
+
+fn addNextLevel(num_to_pick: i32, training_tracker: &mut TrainingTracker) {
+    let even_higher_player_level: i32 = match (*training_tracker).highest_level_so_far_itr.next() {
+        Some(v) => v,
+        None => -1
+    };
+    if even_higher_player_level == -1  {
+        return;
+    }
+    let even_higher_player_count = *training_tracker.num_players_at_level.get(&even_higher_player_level)
+        .expect(std::format!("even_higher_player_level should be in the map {}", even_higher_player_level).as_str());
+
+
+    let new_players_so_far = training_tracker.players_so_far + even_higher_player_count;
+    // need to remove from lowest levels
+    // while loop because the even_higher_player_level_count could include multiple levels
+    while new_players_so_far > num_to_pick {
+        let num_overfilled_by = new_players_so_far - num_to_pick;
+        num_overfilled_by = if (num_overfilled_by > *training_tracker.lowest_level_so_far_count) {
+            *training_tracker.lowest_level_so_far_count
+        } else {
+            num_overfilled_by
+        };
+        new_players_so_far = num_to_pick;
+        // remove the training from some of the lowest level
+        let difference_in_training = even_higher_player_level - lowest_level_so_far_level
+        *training_tracker.training_so_far = *training_tracker.training_so_far - difference_in_training*lowest_level_so_far_level
+        *training_tracker.lowest_level_so_far_count = lowest_level_so_far_count - num_overfilled_by;
+
+        // no more left, move the iterator forward
+        if (*training_tracker.lowest_level_so_far_count == 0) {
+            *training_tracker.lowest_level_so_far_level = *training_tracker.highest_level_so_far_itr().next()
+                .expect(std::format!("lowest_level_so_far_level should not be the last level available: {}",  *training_tracker.lowest_level_so_far_level).as_str())
+            *training_tracker.lowest_level_so_far_level = *training_tracker.num_players_at_level.get(*training_tracker.lowest_level_so_far_level)
+                .expect(std::format!("lowest_level_so_far_level should be in the map {}", *training_tracker.lowest_level_so_far_level).as_str())
+        }
+    }
+}
+
+fn accumulate_until_enough_students(num_to_pick: i32, training_tracker: &mut TrainingTracker) {
+    while training_tracker.players_so_far < num_to_pick {
+        addNextLevel(num_to_pick, training_tracker);
+    }
+    training_tracker.min_so_far = training_tracker.training_so_far;
+}
 
 /// To solve this problem, notice two key properties.
 /// Firstly, to consider all possible solutions, you need to go from the least trained to the most trained students.
@@ -24,12 +94,25 @@ fn solve_scores(
     num_to_pick: i32,
     player_scores: Vec<i32>
 ) {
-    println!("{}", 
-        player_scores
-            .iter()
-            .map(|score_as_int| score_as_int.to_string())
-            .collect::<Vec<String>>()
-            .join(" "))
+    // setup data structure to track the calculation
+    let num_players_at_level = group_players_by_level(player_scores);
+    let mut lowest_level_so_far_itr = num_players_at_level.keys().cloned();
+    let mut highest_level_so_far_itr = num_players_at_level.keys().cloned();
+    let mut training_tracker = TrainingTracker {
+        min_so_far: i32::max_value(),
+        players_so_far: 0,
+        training_so_far: 0,
+        num_players_at_level: num_players_at_level.clone(),
+        lowest_level_so_far_level: 0,
+        lowest_level_so_far_count: 0,
+        lowest_level_so_far_itr: &lowest_level_so_far_itr,
+        highest_level_so_far_level: 0,
+        highest_level_so_far_count: 0,
+        highest_level_so_far_itr: &highest_level_so_far_itr,
+    };
+
+    // move the lowest and highest pointers until there are enough students
+    accumulate_until_enough_students(num_to_pick, &mut training_tracker);
 }
 
 fn handle_test_case_scores(
@@ -37,7 +120,6 @@ fn handle_test_case_scores(
     num_to_pick: i32,
     mut buffer: &mut String
 ) {
-    println!("{} {}", num_of_students, num_to_pick);
     match io::stdin().read_line(&mut buffer) {
         Ok(_n) => {
             let player_scores: Vec<i32> = buffer.split(' ')
@@ -45,7 +127,9 @@ fn handle_test_case_scores(
                     .expect("Expected all student scores to be integers"))
                 .collect();
             buffer.clear();
-            solve_scores(num_to_pick, player_scores);
+            if num_of_students > 0 {
+                solve_scores(num_to_pick, player_scores);
+            }
         },
         Err(error) => println!("error: {}", error)
     }
@@ -72,7 +156,6 @@ fn handle_test_cases(
         num_test_cases: i32,
         mut buffer: &mut String
 ) {
-    println!("{}", num_test_cases);
     for x in 1..=num_test_cases {
         handle_test_case(&mut buffer);
     }
