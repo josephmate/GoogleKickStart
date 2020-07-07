@@ -18,8 +18,8 @@ struct TrainingTracker <'a> {
     lowest_level_so_far_count: i32, 
     highest_level_so_far_level: i32, 
     highest_level_so_far_count: i32, 
-    lowest_level_so_far_itr: &'a dyn std::iter::Iterator<Item =  i32>,
-    highest_level_so_far_itr: &'a dyn std::iter::Iterator<Item =  i32>
+    lowest_level_so_far_itr: &'a mut dyn std::iter::Iterator<Item =  i32>,
+    highest_level_so_far_itr: &'a mut dyn std::iter::Iterator<Item =  i32>
 }
 
 fn group_players_by_level<'a>(player_scores: Vec<i32>) -> BTreeMap<i32, i32> {
@@ -45,28 +45,28 @@ fn addNextLevel(num_to_pick: i32, training_tracker: &mut TrainingTracker) {
         .expect(std::format!("even_higher_player_level should be in the map {}", even_higher_player_level).as_str());
 
 
-    let new_players_so_far = training_tracker.players_so_far + even_higher_player_count;
+    let mut new_players_so_far = training_tracker.players_so_far + even_higher_player_count;
     // need to remove from lowest levels
     // while loop because the even_higher_player_level_count could include multiple levels
     while new_players_so_far > num_to_pick {
         let num_overfilled_by = new_players_so_far - num_to_pick;
-        num_overfilled_by = if (num_overfilled_by > *training_tracker.lowest_level_so_far_count) {
-            *training_tracker.lowest_level_so_far_count
+        let num_overfilled_by = if num_overfilled_by > training_tracker.lowest_level_so_far_count {
+            training_tracker.lowest_level_so_far_count
         } else {
             num_overfilled_by
         };
         new_players_so_far = num_to_pick;
         // remove the training from some of the lowest level
-        let difference_in_training = even_higher_player_level - lowest_level_so_far_level
-        *training_tracker.training_so_far = *training_tracker.training_so_far - difference_in_training*lowest_level_so_far_level
-        *training_tracker.lowest_level_so_far_count = lowest_level_so_far_count - num_overfilled_by;
+        let difference_in_training = even_higher_player_level - training_tracker.lowest_level_so_far_level;
+        training_tracker.training_so_far = training_tracker.training_so_far - difference_in_training*training_tracker.lowest_level_so_far_level;
+        training_tracker.lowest_level_so_far_count = training_tracker.lowest_level_so_far_count - num_overfilled_by;
 
         // no more left, move the iterator forward
-        if (*training_tracker.lowest_level_so_far_count == 0) {
-            *training_tracker.lowest_level_so_far_level = *training_tracker.highest_level_so_far_itr().next()
-                .expect(std::format!("lowest_level_so_far_level should not be the last level available: {}",  *training_tracker.lowest_level_so_far_level).as_str())
-            *training_tracker.lowest_level_so_far_level = *training_tracker.num_players_at_level.get(*training_tracker.lowest_level_so_far_level)
-                .expect(std::format!("lowest_level_so_far_level should be in the map {}", *training_tracker.lowest_level_so_far_level).as_str())
+        if training_tracker.lowest_level_so_far_count == 0 {
+            training_tracker.lowest_level_so_far_level = training_tracker.highest_level_so_far_itr.next()
+                .expect(std::format!("lowest_level_so_far_level should not be the last level available: {}",  training_tracker.lowest_level_so_far_level).as_str());
+            training_tracker.lowest_level_so_far_level = *training_tracker.num_players_at_level.get(&training_tracker.lowest_level_so_far_level)
+                .expect(std::format!("lowest_level_so_far_level should be in the map {}", training_tracker.lowest_level_so_far_level).as_str());
         }
     }
 }
@@ -105,10 +105,10 @@ fn solve_scores(
         num_players_at_level: num_players_at_level.clone(),
         lowest_level_so_far_level: 0,
         lowest_level_so_far_count: 0,
-        lowest_level_so_far_itr: &lowest_level_so_far_itr,
+        lowest_level_so_far_itr: &mut lowest_level_so_far_itr,
         highest_level_so_far_level: 0,
         highest_level_so_far_count: 0,
-        highest_level_so_far_itr: &highest_level_so_far_itr,
+        highest_level_so_far_itr: &mut highest_level_so_far_itr,
     };
 
     // move the lowest and highest pointers until there are enough students
