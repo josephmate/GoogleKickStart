@@ -33,14 +33,12 @@ fn group_players_by_level<'a>(player_scores: Vec<i32>) -> BTreeMap<i32, i32> {
     return num_players_at_level;
 }
 
-fn addNextLevel(num_to_pick: i32, training_tracker: &mut TrainingTracker) {
-    let even_higher_player_level: i32 = match (*training_tracker).highest_level_so_far_itr.next() {
-        Some(v) => v,
-        None => -1
+fn add_next_level(num_to_pick: i32, training_tracker: &mut TrainingTracker) -> bool {
+    let even_higher_player_level: i32;
+     match (*training_tracker).highest_level_so_far_itr.next() {
+        Some(v) => {even_higher_player_level = v},
+        None => {return false}
     };
-    if even_higher_player_level == -1  {
-        return;
-    }
     let even_higher_player_count = *training_tracker.num_players_at_level.get(&even_higher_player_level)
         .expect(std::format!("even_higher_player_level should be in the map {}", even_higher_player_level).as_str());
 
@@ -49,15 +47,17 @@ fn addNextLevel(num_to_pick: i32, training_tracker: &mut TrainingTracker) {
     // need to remove from lowest levels
     // while loop because the even_higher_player_level_count could include multiple levels
     while new_players_so_far > num_to_pick {
+        // figure out how many of the lowest level we need to remove
         let num_overfilled_by = new_players_so_far - num_to_pick;
         let num_overfilled_by = if num_overfilled_by > training_tracker.lowest_level_so_far_count {
             training_tracker.lowest_level_so_far_count
         } else {
             num_overfilled_by
         };
-        new_players_so_far = num_to_pick;
+
         // remove the training from some of the lowest level
-        let difference_in_training = even_higher_player_level - training_tracker.lowest_level_so_far_level;
+        training_tracker.players_so_far = training_tracker.players_so_far - num_overfilled_by;
+        let difference_in_training = training_tracker.highest_level_so_far_level - training_tracker.lowest_level_so_far_level;
         training_tracker.training_so_far = training_tracker.training_so_far - difference_in_training*training_tracker.lowest_level_so_far_level;
         training_tracker.lowest_level_so_far_count = training_tracker.lowest_level_so_far_count - num_overfilled_by;
 
@@ -69,11 +69,23 @@ fn addNextLevel(num_to_pick: i32, training_tracker: &mut TrainingTracker) {
                 .expect(std::format!("lowest_level_so_far_level should be in the map {}", training_tracker.lowest_level_so_far_level).as_str());
         }
     }
+
+    // add the even higher level
+    let even_higher_level_difference = even_higher_player_level - training_tracker.highest_level_so_far_level;
+    training_tracker.training_so_far = training_tracker.training_so_far + even_higher_level_difference*training_tracker.players_so_far;
+    training_tracker.players_so_far = training_tracker.players_so_far + even_higher_player_count;
+    training_tracker.highest_level_so_far_level = even_higher_player_level;
+    training_tracker.highest_level_so_far_count = even_higher_player_count;
+    if training_tracker.training_so_far < training_tracker.min_so_far {
+        training_tracker.min_so_far = training_tracker.training_so_far;
+    }
+
+    return true;
 }
 
 fn accumulate_until_enough_students(num_to_pick: i32, training_tracker: &mut TrainingTracker) {
     while training_tracker.players_so_far < num_to_pick {
-        addNextLevel(num_to_pick, training_tracker);
+        add_next_level(num_to_pick, training_tracker);
     }
     training_tracker.min_so_far = training_tracker.training_so_far;
 }
@@ -113,6 +125,17 @@ fn solve_scores(
 
     // move the lowest and highest pointers until there are enough students
     accumulate_until_enough_students(num_to_pick, &mut training_tracker);
+    let mut working = true;
+    while working {
+        working = add_next_level(num_to_pick, &mut training_tracker);
+        while working && training_tracker.players_so_far < num_to_pick {
+            add_next_level(num_to_pick, &mut training_tracker);
+        }
+        if working && training_tracker.training_so_far <  training_tracker.min_so_far {
+            training_tracker.min_so_far = training_tracker.training_so_far;
+        }
+    }
+    println!("{}", training_tracker.min_so_far)
 }
 
 fn handle_test_case_scores(
