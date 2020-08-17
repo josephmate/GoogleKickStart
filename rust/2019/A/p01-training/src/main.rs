@@ -104,12 +104,27 @@ fn handle_test_case(
     match io::stdin().read_line(&mut buffer) {
         Ok(_n) => {
             let test_case_sizes: Vec<&str> = buffer.split(' ').collect();
-            let num_of_students = test_case_sizes[0].trim().parse::<i32>()
-                .expect(std::format!("1st argument should be a number but got {}", buffer).as_str());
-            let num_to_pick = test_case_sizes[1].trim().parse::<i32>()
-                .expect(std::format!("2nd argument should be a number but got {}", buffer).as_str());
-            buffer.clear();
-            handle_test_case_scores(num_of_students, num_to_pick, &mut buffer);
+            
+            match test_case_sizes[0].trim().parse::<i32>() {
+                Ok(num_of_students) => {
+                    match test_case_sizes[1].trim().parse::<i32>() {
+                        Ok(num_to_pick) => {
+                            buffer.clear();
+                            handle_test_case_scores(num_of_students, num_to_pick, &mut buffer);
+                        },
+                        Err(_error) => {
+                            let mut error_msg = "2nd argument should be a number but got ".to_string();
+                            error_msg.push_str(buffer.as_str());
+                            print!("{}", error_msg);
+                        }
+                    }
+                },
+                Err(_error) => {
+                    let mut error_msg = "1st argument should be a number but got ".to_string();
+                    error_msg.push_str(buffer.as_str());
+                    print!("{}", error_msg);
+                }
+            }
         },
         Err(error) => println!("error: {}", error)
     }
@@ -129,10 +144,18 @@ fn main() {
     let mut buffer = String::new();
     match io::stdin().read_line(&mut buffer) {
         Ok(_n) => {
-            let num_test_cases = buffer.trim().parse::<i32>()
-                .expect(std::format!("First line shoudld be a number but got {}", buffer).as_str());
-            buffer.clear();
-            handle_test_cases(num_test_cases, &mut buffer);
+            match buffer.trim().parse::<i32>() {
+                Ok(num_test_cases) => {
+                    buffer.clear();
+                    handle_test_cases(num_test_cases, &mut buffer);
+                },
+                Err(_error) => {
+                    let mut error_msg = "First line shoudld be a number but got ".to_string();
+                    error_msg.push_str(buffer.as_str());
+                    print!("{}", error_msg);
+                }
+            }
+            
         },
         Err(error) => println!("error: {}", error)
     }
