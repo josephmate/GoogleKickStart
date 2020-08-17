@@ -134,7 +134,7 @@ fn handle_test_cases(
         num_test_cases: i32,
         mut buffer: &mut String
 ) {
-    for x in 1..=num_test_cases {
+    for x in 1..(num_test_cases+1) {
         print!("Case #{}: ", x);
         handle_test_case(&mut buffer);
     }
