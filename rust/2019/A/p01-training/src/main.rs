@@ -78,9 +78,9 @@ fn solve_scores(
 
 fn handle_test_case_scores(
     num_of_students: i32,
-    num_to_pick: i32,
-    mut buffer: &mut String
+    num_to_pick: i32
 ) {
+    let mut buffer = String::new();
     match io::stdin().read_line(&mut buffer) {
         Ok(_n) => {
             let player_scores: Vec<i32> = buffer.split(' ')
@@ -98,9 +98,8 @@ fn handle_test_case_scores(
     }
 }
 
-fn handle_test_case(
-    mut buffer: &mut String
-) {
+fn handle_test_case() {
+    let mut buffer = String::new();
     match io::stdin().read_line(&mut buffer) {
         Ok(_n) => {
             let test_case_sizes: Vec<&str> = buffer.split(' ').collect();
@@ -109,8 +108,7 @@ fn handle_test_case(
                 Ok(num_of_students) => {
                     match test_case_sizes[1].trim().parse::<i32>() {
                         Ok(num_to_pick) => {
-                            buffer.clear();
-                            handle_test_case_scores(num_of_students, num_to_pick, &mut buffer);
+                            handle_test_case_scores(num_of_students, num_to_pick);
                         },
                         Err(_error) => {
                             let mut error_msg = "2nd argument should be a number but got ".to_string();
@@ -130,13 +128,10 @@ fn handle_test_case(
     }
 }
 
-fn handle_test_cases(
-        num_test_cases: i32,
-        mut buffer: &mut String
-) {
+fn handle_test_cases(num_test_cases: i32) {
     for x in 1..(num_test_cases+1) {
         print!("Case #{}: ", x);
-        handle_test_case(&mut buffer);
+        handle_test_case();
     }
 }
 
@@ -147,7 +142,7 @@ fn main() {
             match buffer.trim().parse::<i32>() {
                 Ok(num_test_cases) => {
                     buffer.clear();
-                    handle_test_cases(num_test_cases, &mut buffer);
+                    handle_test_cases(num_test_cases);
                 },
                 Err(_error) => {
                     let mut error_msg = "First line shoudld be a number but got ".to_string();
