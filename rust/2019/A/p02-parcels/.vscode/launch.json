@@ -5,7 +5,7 @@
             "name": "(Windows) Launch",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/target/debug/p01-training.exe",
+            "program": "${workspaceRoot}/target/debug/p02-parcel.exe",
             "args": ["<", "input_01.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
