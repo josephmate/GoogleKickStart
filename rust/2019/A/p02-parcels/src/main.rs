@@ -13,6 +13,63 @@ use std::collections::VecDeque;
 //   Trying every possible post office position
 // This solution will be too slow for the large data set, but I'm using it as a starting point.
 
+// scoreing
+// 1 0 1       1 0 0 0 1
+// 0 0 0       0 0 0 0 0
+// 1 0 1       0 0 0 0 0
+//             0 0 0 0 0
+//             1 0 0 0 1
+// start with the postal offices, put a 0 there
+// 0 ? 0       0 ? ? ? 0
+// ? ? ?       ? ? ? ? ?
+// 0 ? 0       ? ? ? ? ?
+//             ? ? ? ? ?
+//             0 ? ? ? 0
+// move up down left right and place score incremented by 1
+// 0 1 0       0 1 ? 1 0
+// 1 ? 1       1 ? ? ? 1
+// 0 1 0       ? ? ? ? ?
+//             1 ? ? ? 1
+//             0 1 ? 1 0
+// repeat until filled
+// 0 1 0       0 1 2 1 0
+// 1 2 1       1 2 3 2 1
+// 0 1 0       2 3 4 3 2
+//             1 2 3 2 1
+//             0 1 2 1 0
+
+
+
+// Will placing the post office at the max give min overall delivery time?
+// For instance, with these scores, best thing we can do it place it at 2,3, on the right side.
+// 0 1 2 3 2 1 0 1 2 3 4 3 2 1 0
+// Proof by contradication attempt
+// Assume there is some configuration where the max does not provide the min overall delivery time.
+// Let M be the max point
+// Let B be the best point
+// Let X be the point that that is minimized by placing a B, but wasn't minimized when placing at M, reducing the overall by r over placing it at M
+// Let D(M,m) be the distance from M to the closest post office, m, to M
+// Let D(M,B) be the distance between M and B
+// Let D(X,x) be the distance between X and closest postal before placing B
+// m           
+//     M    B        x 
+//              X
+// then
+// D(M,m) > D(X,x)
+// D(M,m) > D(M,B)
+// D(X,x) > D(X,B)
+// since placing a postal M did not give us the overall min for X
+// D(M,X) - D(X,B) = r by assumption
+// D(M,X) > D(X,B)
+
+// D(M,X) ? D(X,x)
+
+// Summary
+//               D(M,X) > D(X,B)
+//      D(M,m) > D(X,x) > D(X,B)
+//      D(M,m) > D(M,B)
+// TODO continue proof
+
 fn bfs_post_office_impl(
     start_row: usize,
     start_column: usize,
