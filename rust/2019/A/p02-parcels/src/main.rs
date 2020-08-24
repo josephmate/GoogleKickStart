@@ -69,17 +69,17 @@ use std::collections::VecDeque;
 //      D(M,m) > D(M,B)
 
 // Maybe it's not true. Let me try finding a counter example
-//    434  
+//    434
 //    323
 //    212
 //    101
 // Placing at max does not give the best solution.
-//    012  
+//    012
 //    123
 //    212
 //    101
 // This one is the best solution.
-//    101  
+//    101
 //    212
 //    212
 //    101
@@ -93,6 +93,24 @@ use std::collections::VecDeque;
 // Calculating the initial score map
 // 250^4 ~ 10 * 10^8 = 10^9 = 1,000,000,000
 
+// That wasn't good enough. Maybe if we
+// start from the intial score map
+// try each square
+// change each cell until score is larger than initial map
+
+// What if we look at all the maximums and take the mid point, and place the post office there.
+// We can try a 3x3 square incase we're off by one.
+// What if there are another square, one less than the max?
+// Maybe weight the midpoint so that it's 1 closer to the max.
+// What if there's one two less than the max?
+// Weight the max 2 more than the one that is two less.
+// Maybe keep recursively doing this?
+// Maybe a weighted average of the coords depending on the score.
+// Maybe try a 3x3 around the weighted average coord just in case I'm off by a bit.
+// this would be O(N*N) algorithm because
+//       N * N for intial score
+// +     N * N calucating the weighted average
+// + 9 * N * N for calculating the scores for 9 potential configurations
 
 fn bfs_score(
     rows: usize,
@@ -165,37 +183,74 @@ fn score_position(
     return max_so_far;
 }
 
+fn find_weight_average_coords(
+    rows: usize,
+    columns: usize,
+    grid: &mut Vec<Vec<i32>>
+) -> Vec<(i32, i32)> {
+    let mut weighted_r = 0;
+    let mut weighted_c = 0;
+    let mut weighted_denominator = 0;
+    let scores = bfs_score(rows, columns, grid);
+    for r in 0..rows {
+        for c in 0..columns {
+            let score = scores[r][c];
+            weighted_r += (r as i32) * score;
+            weighted_c += (c as i32) * score;
+            weighted_denominator += score;
+        }
+    }
+
+    let mut result = Vec::new();
+    if weighted_denominator > 0 {
+        let weighted_r = weighted_r / weighted_denominator;
+        let weighted_c = weighted_c / weighted_denominator;
+        let r_deltas = vec![-1, 0, 1];
+        let c_deltas = vec![-1, 0, 1];
+        for r_delta in r_deltas.iter() {
+            for c_delta in c_deltas.iter() {
+                let r = weighted_r + r_delta;
+                let c = weighted_c + c_delta;
+                if r >= 0
+                        && c >= 0
+                        && r < (rows as i32)
+                        && c < (columns as i32) {
+                    result.push((r,c));
+                }
+            }
+        }
+    }
+    return result;
+}
+
 fn solve(
     rows: usize,
     columns: usize,
     grid: &mut Vec<Vec<i32>>
 ) {
 
-    let mut min_so_far = None;
-    for r in 0..rows {
-        for c in 0..columns {
-            if grid[r][c] == 0 {
-                // change it to 1
-                grid[r][c] = 1;
-                // score it
-                let score = score_position(rows, columns, grid);
-                // change it back
-                grid[r][c] = 0;
 
-                match min_so_far {
-                    Some(min) => {
-                        if score < min {
-                            min_so_far = Some(score);
-                        }
-                    },
-                    None => {
-                        min_so_far = Some(score)
-                    }
+
+    let mut min_so_far = None;
+    for (r, c) in find_weight_average_coords(rows, columns, grid).iter() {
+        // change it to 1
+        grid[*r as usize][*c as usize] = 1;
+        // score it
+        let score = score_position(rows, columns, grid);
+        // change it back
+        grid[*r as usize][*c as usize] = 0;
+
+        match min_so_far {
+            Some(min) => {
+                if score < min {
+                    min_so_far = Some(score);
                 }
-                
+            },
+            None => {
+                min_so_far = Some(score)
             }
         }
-    }
+}
 
     match min_so_far {
         Some(min) => {
