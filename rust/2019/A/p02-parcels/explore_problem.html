@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <style>
+            table {
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 15px;
+            }
+            table, th, td {
+                border: 1px solid black;
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            var rows = 0;
+            var columns = 0;
+            var postalGrid = [];
+            function adjustPostalGrid() {
+                rows = document.getElementById("rows").value;
+                columns = document.getElementById("columns").value;
+                postalGrid = [];
+                var postalGridTable = document.getElementById("postal grid");
+                var scoreTable = document.getElementById("score");
+                postalGridTable.innerHTML = "";
+                scoreTable.innerHTML = "";
+                
+                for(var r = 0; r < rows; r++) {
+                    var row = [];
+                    var postalGridTableRow = document.createElement("tr");
+                    var scoreGridTableRow = document.createElement("tr");
+                    for(var c = 0; c < columns; c++) {
+                        row.push(0);
+                        postalGridTableRow.appendChild(document.createElement("td"));
+                        var scoreCell = document.createElement("td");
+                        scoreCell.innerText = "∞";
+                        scoreGridTableRow.appendChild(scoreCell);
+                    }
+                    postalGridTable.appendChild(postalGridTableRow);
+                    scoreTable.appendChild(scoreGridTableRow);
+                    postalGrid.push(row);
+                }
+            }
+        </script>
+
+        Rows: <input id="rows" type="text" value="10"/>
+        <br/>
+        Columns: <input id="columns" type="text" value="10"/>
+        <br/>
+        <input type="button" value="Adjust" onclick="adjustPostalGrid()"/>
+
+        <table id="postal grid">
+
+        </table>
+        <br/>
+        <table id="score">
+            
+        </table>
+
+        <script>
+            adjustPostalGrid();
+        </script>
+    </body>
+</html>
