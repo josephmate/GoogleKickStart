@@ -111,6 +111,9 @@ use std::collections::VecDeque;
 //       N * N for intial score
 // +     N * N calucating the weighted average
 // + 9 * N * N for calculating the scores for 9 potential configurations
+// Unfortunately this doesn't provide the correct solution.
+
+// 
 
 fn bfs_score(
     rows: usize,
@@ -232,13 +235,13 @@ fn solve(
 
 
     let mut min_so_far = None;
-    for (r, c) in find_weight_average_coords(rows, columns, grid).iter() {
+    for &(r, c) in find_weight_average_coords(rows, columns, grid).iter() {
         // change it to 1
-        grid[*r as usize][*c as usize] = 1;
+        grid[r as usize][c as usize] = 1;
         // score it
         let score = score_position(rows, columns, grid);
         // change it back
-        grid[*r as usize][*c as usize] = 0;
+        grid[r as usize][c as usize] = 0;
 
         match min_so_far {
             Some(min) => {
