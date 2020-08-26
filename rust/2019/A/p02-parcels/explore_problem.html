@@ -51,14 +51,83 @@
                 };
             }
 
-            function togglePostOffice(row, column) {
-                if(postalGrid[row][column] === 1) {
-                    postalGrid[row][column] = 0;
-                    tableCells[row][column].style.backgroundColor = "White";
+            function togglePostOffice(toggleRow, toggleColumn) {
+                if(postalGrid[toggleRow][toggleColumn] === 1) {
+                    postalGrid[toggleRow][toggleColumn] = 0;
+                    tableCells[toggleRow][toggleColumn].style.backgroundColor = "White";
                 } else {
-                    postalGrid[row][column] = 1;
-                    tableCells[row][column].style.backgroundColor = "LightGreen";
+                    postalGrid[toggleRow][toggleColumn] = 1;
+                    tableCells[toggleRow][toggleColumn].style.backgroundColor = "LightGreen";
                 }
+
+                var hasPostalOffice = calcHasPostalOffice();
+                // calculate scores and put them on the table
+                var scores = scorePostalGrid();
+                for(var r = 0; r < rows; r++) {
+                    for(var c = 0; c < columns; c++) {
+                        if (hasPostalOffice) {
+                            tableCells[r][c].innerText = scores[r][c];
+                        } else {
+                            tableCells[r][c].innerText = "∞";
+                        }
+                    }
+                }
+            }
+            
+            function calcHasPostalOffice() {
+                for(var r = 0; r < rows; r++) {
+                    for(var c = 0; c < columns; c++) {
+                        if (postalGrid[r][c] == 1) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            function scorePostalGrid() {
+                var scores = [];
+                for(var r = 0; r < rows; r++) {
+                    var row = [];
+                    for(var c = 0; c < columns; c++) {
+                        row.push(2^31);
+                    }
+                    scores.push(row);
+                }
+
+                // get all the post offices in the queue
+                var queue = [];
+                for(var r = 0; r < rows; r++) {
+                    for(var c = 0; c < columns; c++) {
+                        if (postalGrid[r][c] == 1) {
+                            queue.push([r,c,0]);
+                        }
+                    }
+                }
+
+                while(queue.length > 0) {
+                    var current = queue.shift();
+                    var currentRow = current[0];
+                    var currentColumn = current[1];
+                    var currentScore = current[2];
+                    if (currentScore < scores[currentRow][currentColumn]) {
+                        scores[currentRow][currentColumn] = currentScore;
+                        if (currentRow + 1 < rows) {
+                            queue.push([currentRow + 1, currentColumn, currentScore + 1]);
+                        }
+                        if (currentRow - 1 >= 0) {
+                            queue.push([currentRow - 1, currentColumn, currentScore + 1]);
+                        }
+                        if (currentColumn + 1 < columns) {
+                            queue.push([currentRow, currentColumn + 1, currentScore + 1]);
+                        }
+                        if (currentColumn - 1 >= 0) {
+                            queue.push([currentRow, currentColumn - 1, currentScore + 1]);
+                        }
+                    }
+                }
+
+                return scores;
             }
         </script>
 
