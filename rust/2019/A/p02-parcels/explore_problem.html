@@ -17,29 +17,47 @@
             var rows = 0;
             var columns = 0;
             var postalGrid = [];
-            function adjustPostalGrid() {
+            var tableCells = [];
+
+            function initPostalGrid() {
                 rows = document.getElementById("rows").value;
                 columns = document.getElementById("columns").value;
                 postalGrid = [];
+                tableCells = [];
                 var postalGridTable = document.getElementById("postal grid");
-                var scoreTable = document.getElementById("score");
                 postalGridTable.innerHTML = "";
-                scoreTable.innerHTML = "";
                 
                 for(var r = 0; r < rows; r++) {
                     var row = [];
+                    var tableCellsRow = [];
                     var postalGridTableRow = document.createElement("tr");
-                    var scoreGridTableRow = document.createElement("tr");
                     for(var c = 0; c < columns; c++) {
                         row.push(0);
-                        postalGridTableRow.appendChild(document.createElement("td"));
-                        var scoreCell = document.createElement("td");
-                        scoreCell.innerText = "∞";
-                        scoreGridTableRow.appendChild(scoreCell);
+                        var postalGridCell = document.createElement("td");
+                        postalGridCell.innerText = "∞";
+                        postalGridCell.onclick = createTogglePostOfficeHandler(r, c);
+                        postalGridTableRow.appendChild(postalGridCell);
+                        tableCellsRow.push(postalGridCell);
                     }
                     postalGridTable.appendChild(postalGridTableRow);
-                    scoreTable.appendChild(scoreGridTableRow);
                     postalGrid.push(row);
+                    tableCells.push(tableCellsRow);
+                }
+            }
+
+            function createTogglePostOfficeHandler(row, column) {
+                return function() {
+                            togglePostOffice(row, column);
+                };
+            }
+
+            function togglePostOffice(row, column) {
+                if(postalGrid[row][column] === 1) {
+                    postalGrid[row][column] = 0;
+                    tableCells[row][column].style.backgroundColor = "White";
+                } else {
+                    postalGrid[row][column] = 1;
+                    tableCells[row][column].style.backgroundColor = "LightGreen";
                 }
             }
         </script>
@@ -48,18 +66,13 @@
         <br/>
         Columns: <input id="columns" type="text" value="10"/>
         <br/>
-        <input type="button" value="Adjust" onclick="adjustPostalGrid()"/>
+        <input type="button" value="Adjust" onclick="initPostalGrid()"/>
 
         <table id="postal grid">
-
-        </table>
-        <br/>
-        <table id="score">
-            
         </table>
 
         <script>
-            adjustPostalGrid();
+            initPostalGrid();
         </script>
     </body>
 </html>
