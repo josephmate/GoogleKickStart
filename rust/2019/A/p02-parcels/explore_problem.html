@@ -54,10 +54,19 @@
             function togglePostOffice(toggleRow, toggleColumn) {
                 if(postalGrid[toggleRow][toggleColumn] === 1) {
                     postalGrid[toggleRow][toggleColumn] = 0;
-                    tableCells[toggleRow][toggleColumn].style.backgroundColor = "White";
                 } else {
                     postalGrid[toggleRow][toggleColumn] = 1;
-                    tableCells[toggleRow][toggleColumn].style.backgroundColor = "LightGreen";
+                }
+
+                // reset the colors
+                for(var r = 0; r < rows; r++) {
+                    for(var c = 0; c < columns; c++) {
+                        if(postalGrid[r][c] === 1) {
+                            tableCells[r][c].style.backgroundColor = "LightGreen";
+                        } else {
+                            tableCells[r][c].style.backgroundColor = "White";
+                        }
+                    }
                 }
 
                 var hasPostalOffice = calcHasPostalOffice();
@@ -70,6 +79,17 @@
                         } else {
                             tableCells[r][c].innerText = "∞";
                         }
+                    }
+                }
+
+                // find the best spots
+                if (hasPostalOffice) {
+                    var bestSpots = calcBestSpots();
+                    for (var i = 0; i < bestSpots.length; i++) {
+                        var bestSpot = bestSpots[i];
+                        var bestR = bestSpot[0];
+                        var bestC = bestSpot[1];
+                        tableCells[bestR][bestC].style.backgroundColor = "LightPink";
                     }
                 }
             }
@@ -90,7 +110,7 @@
                 for(var r = 0; r < rows; r++) {
                     var row = [];
                     for(var c = 0; c < columns; c++) {
-                        row.push(2^31);
+                        row.push(Math.pow(2,31));
                     }
                     scores.push(row);
                 }
@@ -128,6 +148,44 @@
                 }
 
                 return scores;
+            }
+
+            function calcBestSpots() {
+                var minSoFar = Math.pow(2,31);
+                var minsSoFar = [];
+                for(var r = 0; r < rows; r++) {
+                    for(var c = 0; c < columns; c++) {
+                        if (postalGrid[r][c] == 0) {
+                            // change it to 1
+                            postalGrid[r][c] = 1;
+                            // score it
+                            let score = scorePosition();
+                            // change it back
+                            postalGrid[r][c] = 0;
+                            if (score < minSoFar) {
+                                minSoFar = score;
+                                minsSoFar = [[r, c]];
+                            } else if (score == minSoFar) {
+                                minsSoFar.push([r, c]);
+                            }
+                        }
+                    }
+                }
+                return minsSoFar;
+                
+            }
+
+            function scorePosition() {
+                var scores = scorePostalGrid();
+                var maxSoFar = 0;
+                for(var r = 0; r < rows; r++) {
+                    for(var c = 0; c < columns; c++) {
+                        if (scores[r][c] > maxSoFar) {
+                            maxSoFar = scores[r][c];
+                        }
+                    }
+                }
+                return maxSoFar;
             }
         </script>
 
