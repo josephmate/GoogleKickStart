@@ -113,7 +113,29 @@ use std::collections::VecDeque;
 // + 9 * N * N for calculating the scores for 9 potential configurations
 // Unfortunately this doesn't provide the correct solution.
 
-// 
+// put together this webpage to explore the problem
+// https://josephmate.github.io/GoogleKickStart/rust/2019/A/p02-parcels/explore_problem.html
+// Still couldn't figure it. as a result, I took a look at the analysis for how do do it.
+
+// It turns out to be a divide any conquer problem with two key pieces:
+// 1) You binary search for the minimumn max delivery time.
+// 2) You need an efficient way to determine if you can achieve a specific delivery time.
+// I'm glad I looked it up, because I would have never come up with 2).
+// You look at all the squares that have above K delivery time.
+// Will they fit in a K by K square? Kind of like using the radius for circle detection in 2D.
+// Since we're doing manhattan distance, we can do it efficiently in O(1) time.
+// So the pseudocode looks something like:
+// 1) compute delivery times
+// 2) binary search if min max delivery time on the K in the range [0, max delivery time from 1)]
+//    2.1) find all squares with distance greater than K
+//    2.2) determine if all the squares can fit in a K sized 'manning distance shape'
+//         (this is where my solution differs from the kickstarter analysis. I found this
+//          way to be easier to understand)
+//        2.2.1) using / diagonal lines, search for the first and last occurrence of square from (2.1)
+//             2.2.1.1) if that distance is bigger than K, it does not fit in a K sized 'manning distance shape'
+//                      otherwise it does
+
+
 
 fn bfs_score(
     rows: usize,
@@ -169,12 +191,11 @@ fn bfs_score(
     return scores;
 }
 
-fn score_position(
+fn max_grid(
     rows: usize,
     columns: usize,
-    grid: &mut Vec<Vec<i32>>
+    scores: &mut Vec<Vec<i32>>
 ) -> i32 {
-    let scores = bfs_score(rows, columns, grid);
     let mut max_so_far = 0;
     for r in 0..rows {
         for c in 0..columns {
@@ -186,44 +207,74 @@ fn score_position(
     return max_so_far;
 }
 
-fn find_weight_average_coords(
+fn find_too_far_grid {
     rows: usize,
     columns: usize,
-    grid: &mut Vec<Vec<i32>>
-) -> Vec<(i32, i32)> {
-    let mut weighted_r = 0;
-    let mut weighted_c = 0;
-    let mut weighted_denominator = 0;
-    let scores = bfs_score(rows, columns, grid);
+    scores: &Vec<Vec<i32>>,
+    max_allowable_distance: i32
+) -> Vec<Vec<bool>> {
+    let mut too_far_grid = Vec::new();
     for r in 0..rows {
+        let mut row = Vec::new();
         for c in 0..columns {
-            let score = scores[r][c];
-            weighted_r += (r as i32) * score;
-            weighted_c += (c as i32) * score;
-            weighted_denominator += score;
+            row.push(scores[r][c] > max_allowable_distance);
         }
+        scores.push(row);
+    }
+    return too_far_grid;
+}
+
+fn top_left_to_bottom_right_distance {
+    rows: usize,
+    columns: usize,
+    too_far_grid: &Vec<Vec<bool>>
+) -> i32 { 
+}
+
+fn bottom_left_to_bottom_right_distance {
+    rows: usize,
+    columns: usize,
+    too_far_grid: &Vec<Vec<bool>>
+) -> i32 { 
+}
+
+fn man_dist_fits(
+    rows: usize,
+    columns: usize,
+    scores: &Vec<Vec<i32>>,
+    max_allowable_distance: i32
+) -> bool {
+    let too_far_grid = find_to_far(rows, columns, score, max_allowable_distance);
+
+    if top_left_to_bottom_right_distance(rows, columns, too_far_grid) > max_allowable_distance {
+        return false;
     }
 
-    let mut result = Vec::new();
-    if weighted_denominator > 0 {
-        let weighted_r = weighted_r / weighted_denominator;
-        let weighted_c = weighted_c / weighted_denominator;
-        let r_deltas = vec![-1, 0, 1];
-        let c_deltas = vec![-1, 0, 1];
-        for r_delta in r_deltas.iter() {
-            for c_delta in c_deltas.iter() {
-                let r = weighted_r + r_delta;
-                let c = weighted_c + c_delta;
-                if r >= 0
-                        && c >= 0
-                        && r < (rows as i32)
-                        && c < (columns as i32) {
-                    result.push((r,c));
-                }
-            }
+    return bottom_left_to_bottom_right_distance(rows, columns, too_far_grid) <= max_allowable_distance;
+}
+
+fn binary_search_problem(
+    rows: usize,
+    columns: usize,
+    scores: &mut Vec<Vec<i32>>,
+    min_range: i32,
+    max_range: i32
+) -> i32 {
+    let expected_max_score = (min_range + max_range)/2;
+
+    if man_dist_fits(rows, columns, scores, expected_max_score) {
+        if expected_max_score - 1 < min_range {
+            return expected_max_score;
         }
+        return binary_search_problem(rows, columns, scores, min_range, expected_max_score - 1);
+    } else {
+        if expected_max_score + 1 > max_range {
+            return expected_max_score - 1;
+        }
+        return binary_search_problem(rows, columns, scores, expected_max_score + 1, max_range);
     }
-    return result;
+
+    return 0;
 }
 
 fn solve(
@@ -231,38 +282,15 @@ fn solve(
     columns: usize,
     grid: &mut Vec<Vec<i32>>
 ) {
-
-
-
-    let mut min_so_far = None;
-    for &(r, c) in find_weight_average_coords(rows, columns, grid).iter() {
-        // change it to 1
-        grid[r as usize][c as usize] = 1;
-        // score it
-        let score = score_position(rows, columns, grid);
-        // change it back
-        grid[r as usize][c as usize] = 0;
-
-        match min_so_far {
-            Some(min) => {
-                if score < min {
-                    min_so_far = Some(score);
-                }
-            },
-            None => {
-                min_so_far = Some(score)
-            }
-        }
-}
-
-    match min_so_far {
-        Some(min) => {
-            println!("{}", min)
-        },
-        None => {
-            println!("{}", 0)
-        }
+    let scores = score_position(rows, columns, grid);
+    let max_score = max_grid(rows, columns, scores);
+    if max_score == 0 {
+        println!("{}", 0);
+        return;
     }
+
+    let min_max_score = binary_search_problem(rows, columns, scores, 0, max_score);
+    println!("{}", min_max_score);
 }
 
 // The first line of the input gives the number of test cases, T. T test cases follow.
