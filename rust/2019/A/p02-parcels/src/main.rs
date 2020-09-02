@@ -145,9 +145,9 @@ fn bfs_score(
     // create an empty grid of scores
     // -1 indicates no score yet
     let mut scores = Vec::new();
-    for r in 0..rows {
+    for _r in 0..rows {
         let mut row = Vec::new();
-        for c in 0..columns {
+        for _c in 0..columns {
             row.push(std::i32::MAX);
         }
         scores.push(row);
@@ -194,7 +194,7 @@ fn bfs_score(
 fn max_grid(
     rows: usize,
     columns: usize,
-    scores: &mut Vec<Vec<i32>>
+    scores: &Vec<Vec<i32>>
 ) -> i32 {
     let mut max_so_far = 0;
     for r in 0..rows {
@@ -207,7 +207,7 @@ fn max_grid(
     return max_so_far;
 }
 
-fn find_too_far_grid {
+fn find_too_far_grid(
     rows: usize,
     columns: usize,
     scores: &Vec<Vec<i32>>,
@@ -219,23 +219,60 @@ fn find_too_far_grid {
         for c in 0..columns {
             row.push(scores[r][c] > max_allowable_distance);
         }
-        scores.push(row);
+        too_far_grid.push(row);
     }
     return too_far_grid;
 }
 
-fn top_left_to_bottom_right_distance {
-    rows: usize,
-    columns: usize,
-    too_far_grid: &Vec<Vec<bool>>
-) -> i32 { 
+#[derive(Copy, Clone)]
+enum DiagonalDirection {
+    TopLeftToBottomRight,
+    BottomLeftToBottomRight
 }
 
-fn bottom_left_to_bottom_right_distance {
+fn diagonal_distance(
     rows: usize,
     columns: usize,
-    too_far_grid: &Vec<Vec<bool>>
+    too_far_grid: &Vec<Vec<bool>>,
+    direction: DiagonalDirection
 ) -> i32 { 
+    let square_bound =
+        if rows > columns {
+            rows
+        } else {
+            columns
+        };
+
+    let mut found = false;
+    let mut diagonal_distance = 0;
+    for diagonal_length in 0..square_bound {
+        if found {
+            diagonal_distance += 1;
+        }
+        for diagonal_position in 0..square_bound {
+            let row_posn = match direction {
+                DiagonalDirection::TopLeftToBottomRight => diagonal_length - diagonal_position,
+                DiagonalDirection::BottomLeftToBottomRight => (square_bound-1) - diagonal_length + diagonal_position
+            };
+            let col_posn = match direction {
+                DiagonalDirection::TopLeftToBottomRight => diagonal_position,
+                DiagonalDirection::BottomLeftToBottomRight => diagonal_position
+            };
+            
+            if row_posn < rows  && col_posn < columns {
+                if too_far_grid[row_posn][col_posn] {
+                    if found {
+                        return diagonal_distance;
+                    } else {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
 }
 
 fn man_dist_fits(
@@ -244,19 +281,19 @@ fn man_dist_fits(
     scores: &Vec<Vec<i32>>,
     max_allowable_distance: i32
 ) -> bool {
-    let too_far_grid = find_to_far(rows, columns, score, max_allowable_distance);
+    let too_far_grid = find_too_far_grid(rows, columns, scores, max_allowable_distance);
 
-    if top_left_to_bottom_right_distance(rows, columns, too_far_grid) > max_allowable_distance {
+    if diagonal_distance(rows, columns, &too_far_grid, DiagonalDirection::TopLeftToBottomRight) > max_allowable_distance {
         return false;
     }
 
-    return bottom_left_to_bottom_right_distance(rows, columns, too_far_grid) <= max_allowable_distance;
+    return diagonal_distance(rows, columns, &too_far_grid, DiagonalDirection::BottomLeftToBottomRight) <= max_allowable_distance;
 }
 
 fn binary_search_problem(
     rows: usize,
     columns: usize,
-    scores: &mut Vec<Vec<i32>>,
+    scores: &Vec<Vec<i32>>,
     min_range: i32,
     max_range: i32
 ) -> i32 {
@@ -273,8 +310,6 @@ fn binary_search_problem(
         }
         return binary_search_problem(rows, columns, scores, expected_max_score + 1, max_range);
     }
-
-    return 0;
 }
 
 fn solve(
@@ -282,14 +317,14 @@ fn solve(
     columns: usize,
     grid: &mut Vec<Vec<i32>>
 ) {
-    let scores = score_position(rows, columns, grid);
-    let max_score = max_grid(rows, columns, scores);
+    let scores = bfs_score(rows, columns, grid);
+    let max_score = max_grid(rows, columns, &scores);
     if max_score == 0 {
         println!("{}", 0);
         return;
     }
 
-    let min_max_score = binary_search_problem(rows, columns, scores, 0, max_score);
+    let min_max_score = binary_search_problem(rows, columns, &scores, 0, max_score);
     println!("{}", min_max_score);
 }
 
