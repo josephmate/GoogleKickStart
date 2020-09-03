@@ -230,49 +230,90 @@ enum DiagonalDirection {
     BottomLeftToBottomRight
 }
 
+// top left          bottom left
+// to                to
+// bottom right      top right
+// 1 2 3 4           4 5 6 7 
+// 2 3 4 5           3 4 5 6 
+// 3 4 5 6           2 3 4 5 
+// 4 5 6 7           1 2 3 4 
+//
+// 1 2               5 6
+// 2 3               4 5
+// 3 4               3 4
+// 4 5               2 3
+// 5 6               1 2
 fn diagonal_distance(
     rows: usize,
     columns: usize,
     too_far_grid: &Vec<Vec<bool>>,
     direction: DiagonalDirection
 ) -> i32 { 
-    let square_bound =
-        if rows > columns {
-            rows
-        } else {
-            columns
-        };
-
     let mut found = false;
-    let mut diagonal_distance = 0;
-    for diagonal_length in 0..square_bound {
+    let mut current_diagonal_distance = 0;
+    let mut max_diagonal_distance_so_far = 0;
+    
+    for r in 0..rows {
         if found {
-            diagonal_distance += 1;
+            current_diagonal_distance += 1;
         }
-        for diagonal_position in 0..square_bound {
-            let row_posn = match direction {
-                DiagonalDirection::TopLeftToBottomRight => diagonal_length - diagonal_position,
-                DiagonalDirection::BottomLeftToBottomRight => (square_bound-1) - diagonal_length + diagonal_position
-            };
-            let col_posn = match direction {
-                DiagonalDirection::TopLeftToBottomRight => diagonal_position,
-                DiagonalDirection::BottomLeftToBottomRight => diagonal_position
-            };
-            
-            if row_posn < rows  && col_posn < columns {
-                if too_far_grid[row_posn][col_posn] {
-                    if found {
-                        return diagonal_distance;
-                    } else {
-                        found = true;
-                        break;
-                    }
+        let mut current_row: i32 = match direction {
+            DiagonalDirection::TopLeftToBottomRight => r as i32,
+            DiagonalDirection::BottomLeftToBottomRight => rows as i32 - 1
+        };
+        let mut current_column: i32 = 0;
+
+        while current_row < (rows as i32)
+                && current_row >= 0
+                && current_column < (columns as i32)
+                && current_column >= 0 {
+            if too_far_grid[current_row as usize][current_column as usize] {
+                if !found {
+                    found = true;
+                } else {
+                    max_diagonal_distance_so_far = current_diagonal_distance;
                 }
+                break; // don't need to look at the rest in the diagonal
             }
+            current_row = match direction {
+                DiagonalDirection::TopLeftToBottomRight => current_row - 1,
+                DiagonalDirection::BottomLeftToBottomRight => current_row + 1
+            };
+            current_column = current_column + 1;
+        }
+    }
+    // don't start at 0 because 0,rows-1 was already visited
+    for c in 1..columns {
+        if found {
+            current_diagonal_distance += 1;
+        }
+        let mut current_row: i32 = match direction {
+            DiagonalDirection::TopLeftToBottomRight => rows as i32 - 1,
+            DiagonalDirection::BottomLeftToBottomRight => 0
+        };
+        let mut current_column: i32 = c as i32;
+
+        while current_row < (rows as i32)
+                && current_row >= 0
+                && current_column < (columns as i32)
+                && current_column >= 0 {
+            if too_far_grid[current_row as usize][current_column as usize] {
+                if found {
+                    found = true;
+                } else {
+                    max_diagonal_distance_so_far = current_diagonal_distance;
+                }
+                break; // don't need to look at the rest in the diagonal
+            }
+            current_row = match direction {
+                DiagonalDirection::TopLeftToBottomRight => current_row - 1,
+                DiagonalDirection::BottomLeftToBottomRight => current_row + 1
+            };
+            current_column = current_column + 1;
         }
     }
 
-    return 0;
+    return max_diagonal_distance_so_far;
 }
 
 fn man_dist_fits(
