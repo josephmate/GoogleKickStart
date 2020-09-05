@@ -227,7 +227,7 @@ fn find_too_far_grid(
 #[derive(Copy, Clone)]
 enum DiagonalDirection {
     TopLeftToBottomRight,
-    BottomLeftToBottomRight
+    BottomLeftToTopRight
 }
 
 // top left          bottom left
@@ -259,7 +259,7 @@ fn diagonal_distance(
         }
         let mut current_row: i32 = match direction {
             DiagonalDirection::TopLeftToBottomRight => r as i32,
-            DiagonalDirection::BottomLeftToBottomRight => rows as i32 - 1
+            DiagonalDirection::BottomLeftToTopRight => rows as i32 - 1
         };
         let mut current_column: i32 = 0;
 
@@ -277,7 +277,7 @@ fn diagonal_distance(
             }
             current_row = match direction {
                 DiagonalDirection::TopLeftToBottomRight => current_row - 1,
-                DiagonalDirection::BottomLeftToBottomRight => current_row + 1
+                DiagonalDirection::BottomLeftToTopRight => current_row + 1
             };
             current_column = current_column + 1;
         }
@@ -289,7 +289,7 @@ fn diagonal_distance(
         }
         let mut current_row: i32 = match direction {
             DiagonalDirection::TopLeftToBottomRight => rows as i32 - 1,
-            DiagonalDirection::BottomLeftToBottomRight => 0
+            DiagonalDirection::BottomLeftToTopRight => 0
         };
         let mut current_column: i32 = c as i32;
 
@@ -307,13 +307,43 @@ fn diagonal_distance(
             }
             current_row = match direction {
                 DiagonalDirection::TopLeftToBottomRight => current_row - 1,
-                DiagonalDirection::BottomLeftToBottomRight => current_row + 1
+                DiagonalDirection::BottomLeftToTopRight => current_row + 1
             };
             current_column = current_column + 1;
         }
     }
 
     return max_diagonal_distance_so_far;
+}
+
+fn print_bool_grid(
+    rows: usize,
+    columns: usize,
+    grid: &Vec<Vec<bool>>
+) {
+    for r in 0..rows {
+        for c in 0..columns {
+            if grid[r][c] {
+                print!("1");
+            } else {
+                print!("0");
+            }
+        }
+        println!("");
+    }
+}
+
+fn print_grid(
+    rows: usize,
+    columns: usize,
+    grid: &Vec<Vec<i32>>
+) {
+    for r in 0..rows {
+        for c in 0..columns {
+            print!("{} ", grid[r][c]);
+        }
+        println!("");
+    }
 }
 
 fn man_dist_fits(
@@ -323,14 +353,46 @@ fn man_dist_fits(
     max_allowable_distance: i32
 ) -> bool {
     let too_far_grid = find_too_far_grid(rows, columns, scores, max_allowable_distance);
+    println!("too_far_grid max_allowable_distance={}",max_allowable_distance);
+    print_bool_grid(rows, columns, &too_far_grid);
 
-    if diagonal_distance(rows, columns, &too_far_grid, DiagonalDirection::TopLeftToBottomRight) > max_allowable_distance {
-        return false;
-    }
+    let top_left_to_bottom_right_dist = diagonal_distance(rows, columns, &too_far_grid, DiagonalDirection::TopLeftToBottomRight);
+    let bottom_left_to_top_right = diagonal_distance(rows, columns, &too_far_grid, DiagonalDirection::BottomLeftToTopRight);
+    let result = top_left_to_bottom_right_dist <= max_allowable_distance
+        && bottom_left_to_top_right <= max_allowable_distance;
 
-    return diagonal_distance(rows, columns, &too_far_grid, DiagonalDirection::BottomLeftToBottomRight) <= max_allowable_distance;
+    println!("top_left_dist={}, bottom_left_dist={}, result={}", top_left_to_bottom_right_dist, bottom_left_to_top_right, result);
+    return result;
 }
 
+// 0 1 0
+// 1 2 1
+// 0 1 0
+// [0, 2]
+// 1 OK
+// [0, 1]
+// 0 NOT OK
+// [1, 1]
+// 1 OK
+// return 1
+// 0 1 2 1 0
+// 1 2 3 2 1
+// 2 3 4 3 2
+// 1 2 3 2 1
+// 0 1 2 1 0
+// [0, 4]
+// 2 OK
+// [0, 2]
+// 1 NOT OK
+// [2, 2]
+// 2 OK RETURN
+// 4 3 4
+// 3 2 3
+// 2 1 2
+// 1 0 1
+// [0, 4]
+// 2 OK
+// [0, 2]
 fn binary_search_problem(
     rows: usize,
     columns: usize,
@@ -338,17 +400,17 @@ fn binary_search_problem(
     min_range: i32,
     max_range: i32
 ) -> i32 {
-    let expected_max_score = (min_range + max_range)/2;
+    if min_range == max_range {
+        println!("[{}, {}] return", min_range, max_range);
+        return min_range;
+    }
 
+    let expected_max_score = (min_range + max_range)/2;
     if man_dist_fits(rows, columns, scores, expected_max_score) {
-        if expected_max_score - 1 < min_range {
-            return expected_max_score;
-        }
-        return binary_search_problem(rows, columns, scores, min_range, expected_max_score - 1);
+        println!("[{}, {}], {} YES", min_range, max_range, expected_max_score);
+        return binary_search_problem(rows, columns, scores, min_range, expected_max_score);
     } else {
-        if expected_max_score + 1 > max_range {
-            return expected_max_score - 1;
-        }
+        println!("[{}, {}], {} NO", min_range, max_range, expected_max_score);
         return binary_search_problem(rows, columns, scores, expected_max_score + 1, max_range);
     }
 }
@@ -358,7 +420,11 @@ fn solve(
     columns: usize,
     grid: &mut Vec<Vec<i32>>
 ) {
+    println!("grid");
+    print_grid(rows, columns, &grid);
     let scores = bfs_score(rows, columns, grid);
+    println!("scores");
+    print_grid(rows, columns, &scores);
     let max_score = max_grid(rows, columns, &scores);
     if max_score == 0 {
         println!("{}", 0);
@@ -433,7 +499,8 @@ fn handle_test_case() {
 
 fn handle_test_cases(num_test_cases: i32) {
     for i in 1..(num_test_cases+1) {
-        print!("Case #{}: ", i);
+        // TODO fix ti print!()
+        println!("Case #{}: ", i);
         handle_test_case();
     }
 }
@@ -458,3 +525,165 @@ fn main() {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_distance_top_left_0() {
+        assert_eq!(diagonal_distance(3, 3,
+                &vec!(
+                    vec!(false, false, false),
+                    vec!(false,  true, false),
+                    vec!(false, false, false)
+                ),
+                DiagonalDirection::TopLeftToBottomRight),
+            0);
+    }
+
+    #[test]
+    fn test_distance_bottom_left_0() {
+        assert_eq!(diagonal_distance(3, 3,
+                &vec!(
+                    vec!(false, false, false),
+                    vec!(false,  true, false),
+                    vec!(false, false, false)
+                ),
+                DiagonalDirection::BottomLeftToTopRight),
+            0);
+    }
+    
+    #[test]
+    fn test_distance_top_left_1() {    
+        assert_eq!(diagonal_distance(3, 3,
+                &vec!(
+                    vec!(false,  true, false),
+                    vec!( true,  true,  true),
+                    vec!(false,  true, false)
+                ),
+                DiagonalDirection::TopLeftToBottomRight),
+            1);
+    }
+    
+    #[test]
+    fn test_distance_bottom_left_1() {  
+        assert_eq!(diagonal_distance(3, 3,
+                &vec!(
+                    vec!(false,  true, false),
+                    vec!( true,  true,  true),
+                    vec!(false,  true, false)
+                ),
+                DiagonalDirection::BottomLeftToTopRight),
+            1);
+    }
+    
+    #[test]
+    fn test_distance_top_left_1_5_by_5() {    
+        assert_eq!(diagonal_distance(5, 5,
+                &vec!(
+                    vec!(false, false, false, false, false),
+                    vec!(false, false,  true, false, false),
+                    vec!(false,  true,  true,  true, false),
+                    vec!(false, false,  true, false, false),
+                    vec!(false, false, false, false, false)
+                ),
+                DiagonalDirection::TopLeftToBottomRight),
+            1);
+    }
+
+    #[test]
+    fn test_distance_bottom_left_1_5_by_5() {    
+        assert_eq!(diagonal_distance(5, 5,
+                &vec!(
+                    vec!(false, false, false, false, false),
+                    vec!(false, false,  true, false, false),
+                    vec!(false,  true,  true,  true, false),
+                    vec!(false, false,  true, false, false),
+                    vec!(false, false, false, false, false)
+                ),
+                DiagonalDirection::BottomLeftToTopRight),
+            1);
+    }
+
+    #[test]
+    fn test_distance_top_left_2_5_by_5() {    
+        assert_eq!(diagonal_distance(5, 5,
+                &vec!(
+                    vec!(false, false,  true, false, false),
+                    vec!(false,  true,  true,  true, false),
+                    vec!( true,  true,  true,  true,  true),
+                    vec!(false,  true,  true,  true, false),
+                    vec!(false, false,  true, false, false)
+                ),
+                DiagonalDirection::TopLeftToBottomRight),
+            2);
+    }
+
+    #[test]
+    fn test_distance_bottom_left_2_5_by_5() {    
+        assert_eq!(diagonal_distance(5, 5,
+                &vec!(
+                    vec!(false, false,  true, false, false),
+                    vec!(false,  true,  true,  true, false),
+                    vec!( true,  true,  true,  true,  true),
+                    vec!(false,  true,  true,  true, false),
+                    vec!(false, false,  true, false, false)
+                ),
+                DiagonalDirection::BottomLeftToTopRight),
+            2);
+    }
+
+    #[test]
+    fn test_distance_top_left_2_4_by_3() {    
+        assert_eq!(diagonal_distance(4, 3,
+                &vec!(
+                    vec!( true,  true,  true),
+                    vec!( true, false,  true),
+                    vec!(false, false, false),
+                    vec!(false, false, false),
+                ),
+                DiagonalDirection::TopLeftToBottomRight),
+            2);
+    }
+
+    #[test]
+    fn test_distance_bottom_left_2_4_by_3() {    
+        assert_eq!(diagonal_distance(4, 3,
+                &vec!(
+                    vec!( true,  true,  true),
+                    vec!( true, false,  true),
+                    vec!(false, false, false),
+                    vec!(false, false, false),
+                ),
+                DiagonalDirection::BottomLeftToTopRight),
+            2);
+    }
+
+    #[test]
+    fn test_distance_top_left_1_4_by_3() {    
+        assert_eq!(diagonal_distance(4, 3,
+                &vec!(
+                    vec!( true, false,  true),
+                    vec!(false, false, false),
+                    vec!(false, false, false),
+                    vec!(false, false, false),
+                ),
+                DiagonalDirection::TopLeftToBottomRight),
+            1);
+    }
+
+    #[test]
+    fn test_distance_bottom_left_1_4_by_3() {    
+        assert_eq!(diagonal_distance(4, 3,
+                &vec!(
+                    vec!( true, false,  true),
+                    vec!(false, false, false),
+                    vec!(false, false, false),
+                    vec!(false, false, false),
+                ),
+                DiagonalDirection::BottomLeftToTopRight),
+            1);
+    }
+
+}
