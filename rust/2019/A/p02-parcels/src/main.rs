@@ -138,8 +138,8 @@ use std::collections::VecDeque;
 
 
 fn bfs_score(
-    rows: usize,
-    columns: usize,
+    rows: i32,
+    columns: i32,
     grid: & Vec<Vec<i32>>,
 ) -> Vec<Vec<i32>> {
     // create an empty grid of scores
@@ -154,10 +154,10 @@ fn bfs_score(
     }
 
     // get all the post offices in the queue
-    let mut bfs_queue: VecDeque<(usize, usize, usize)> = VecDeque::new();
+    let mut bfs_queue: VecDeque<(i32, i32, i32)> = VecDeque::new();
     for r in 0..rows {
         for c in 0..columns {
-            if grid[r][c] == 1 {
+            if grid[r as usize][c as usize] == 1 {
                 bfs_queue.push_back((r,c,0));
             }
         }
@@ -166,18 +166,18 @@ fn bfs_score(
     loop {
         match bfs_queue.pop_front() {
             Some((current_row, current_column, score)) => {
-                if (score as i32) < scores[current_row][current_column] {
-                    scores[current_row][current_column] = score as i32;
+                if (score) < scores[current_row as usize][current_column as usize] {
+                    scores[current_row as usize][current_column as usize] = score;
                     if current_row + 1 < rows {
                         bfs_queue.push_back((current_row + 1, current_column, score + 1));
                     }
-                    if current_row as i32 - 1 >= 0 {
+                    if current_row - 1 >= 0 {
                         bfs_queue.push_back((current_row - 1, current_column, score + 1));
                     }
                     if current_column + 1 < columns {
                         bfs_queue.push_back((current_row, current_column + 1, score + 1));
                     }
-                    if current_column as i32 - 1 >= 0 {
+                    if current_column - 1 >= 0 {
                         bfs_queue.push_back((current_row, current_column - 1, score + 1));
                     }
                 }
@@ -192,15 +192,15 @@ fn bfs_score(
 }
 
 fn max_grid(
-    rows: usize,
-    columns: usize,
+    rows: i32,
+    columns: i32,
     scores: &Vec<Vec<i32>>
 ) -> i32 {
     let mut max_so_far = 0;
     for r in 0..rows {
         for c in 0..columns {
-            if scores[r][c] > max_so_far {
-                max_so_far = scores[r][c];
+            if scores[r as usize][c as usize] > max_so_far {
+                max_so_far = scores[r as usize][c as usize];
             }
         }
     }
@@ -208,8 +208,8 @@ fn max_grid(
 }
 
 fn find_too_far_grid(
-    rows: usize,
-    columns: usize,
+    rows: i32,
+    columns: i32,
     scores: &Vec<Vec<i32>>,
     max_allowable_distance: i32
 ) -> Vec<Vec<bool>> {
@@ -217,7 +217,7 @@ fn find_too_far_grid(
     for r in 0..rows {
         let mut row = Vec::new();
         for c in 0..columns {
-            row.push(scores[r][c] > max_allowable_distance);
+            row.push(scores[r as usize][c as usize] > max_allowable_distance);
         }
         too_far_grid.push(row);
     }
@@ -244,8 +244,8 @@ enum DiagonalDirection {
 // 4 5               2 3
 // 5 6               1 2
 fn diagonal_distance(
-    rows: usize,
-    columns: usize,
+    rows: i32,
+    columns: i32,
     too_far_grid: &Vec<Vec<bool>>,
     direction: DiagonalDirection
 ) -> i32 { 
@@ -257,17 +257,17 @@ fn diagonal_distance(
         if found {
             current_diagonal_distance += 1;
         }
-        let mut current_row: i32 = match direction {
-            DiagonalDirection::TopLeftToBottomRight => r as i32,
-            DiagonalDirection::BottomLeftToTopRight => rows as i32 - 1
+        let mut current_row_by_row: i32 = match direction {
+            DiagonalDirection::TopLeftToBottomRight => r,
+            DiagonalDirection::BottomLeftToTopRight => rows - 1 - r
         };
-        let mut current_column: i32 = 0;
+        let mut current_column_by_row: i32 = 0;
 
-        while current_row < (rows as i32)
-                && current_row >= 0
-                && current_column < (columns as i32)
-                && current_column >= 0 {
-            if too_far_grid[current_row as usize][current_column as usize] {
+        while current_row_by_row < rows
+                && current_row_by_row >= 0
+                && current_column_by_row < columns
+                && current_column_by_row >= 0 {
+            if too_far_grid[current_row_by_row as usize][current_column_by_row as usize] {
                 if !found {
                     found = true;
                 } else {
@@ -275,93 +275,62 @@ fn diagonal_distance(
                 }
                 break; // don't need to look at the rest in the diagonal
             }
-            current_row = match direction {
-                DiagonalDirection::TopLeftToBottomRight => current_row - 1,
-                DiagonalDirection::BottomLeftToTopRight => current_row + 1
+            current_row_by_row = match direction {
+                DiagonalDirection::TopLeftToBottomRight => current_row_by_row - 1,
+                DiagonalDirection::BottomLeftToTopRight => current_row_by_row + 1
             };
-            current_column = current_column + 1;
+            current_column_by_row = current_column_by_row + 1;
         }
     }
+
     // don't start at 0 because 0,rows-1 was already visited
     for c in 1..columns {
         if found {
             current_diagonal_distance += 1;
         }
-        let mut current_row: i32 = match direction {
-            DiagonalDirection::TopLeftToBottomRight => rows as i32 - 1,
+        let mut current_row_by_column: i32 = match direction {
+            DiagonalDirection::TopLeftToBottomRight => rows - 1,
             DiagonalDirection::BottomLeftToTopRight => 0
         };
-        let mut current_column: i32 = c as i32;
+        let mut current_column_by_column: i32 = c;
 
-        while current_row < (rows as i32)
-                && current_row >= 0
-                && current_column < (columns as i32)
-                && current_column >= 0 {
-            if too_far_grid[current_row as usize][current_column as usize] {
-                if found {
+        while current_row_by_column < rows
+                && current_row_by_column >= 0
+                && current_column_by_column < columns
+                && current_column_by_column >= 0 {
+            if too_far_grid[current_row_by_column as usize][current_column_by_column as usize] {
+                if !found {
                     found = true;
                 } else {
                     max_diagonal_distance_so_far = current_diagonal_distance;
                 }
                 break; // don't need to look at the rest in the diagonal
             }
-            current_row = match direction {
-                DiagonalDirection::TopLeftToBottomRight => current_row - 1,
-                DiagonalDirection::BottomLeftToTopRight => current_row + 1
+            current_row_by_column = match direction {
+                DiagonalDirection::TopLeftToBottomRight => current_row_by_column - 1,
+                DiagonalDirection::BottomLeftToTopRight => current_row_by_column + 1
             };
-            current_column = current_column + 1;
+            current_column_by_column = current_column_by_column + 1;
         }
     }
 
-    return max_diagonal_distance_so_far;
-}
-
-fn print_bool_grid(
-    rows: usize,
-    columns: usize,
-    grid: &Vec<Vec<bool>>
-) {
-    for r in 0..rows {
-        for c in 0..columns {
-            if grid[r][c] {
-                print!("1");
-            } else {
-                print!("0");
-            }
-        }
-        println!("");
-    }
-}
-
-fn print_grid(
-    rows: usize,
-    columns: usize,
-    grid: &Vec<Vec<i32>>
-) {
-    for r in 0..rows {
-        for c in 0..columns {
-            print!("{} ", grid[r][c]);
-        }
-        println!("");
-    }
+    return (max_diagonal_distance_so_far / 2)
+        + (max_diagonal_distance_so_far % 2);
 }
 
 fn man_dist_fits(
-    rows: usize,
-    columns: usize,
+    rows: i32,
+    columns: i32,
     scores: &Vec<Vec<i32>>,
     max_allowable_distance: i32
 ) -> bool {
     let too_far_grid = find_too_far_grid(rows, columns, scores, max_allowable_distance);
-    println!("too_far_grid max_allowable_distance={}",max_allowable_distance);
-    print_bool_grid(rows, columns, &too_far_grid);
 
     let top_left_to_bottom_right_dist = diagonal_distance(rows, columns, &too_far_grid, DiagonalDirection::TopLeftToBottomRight);
     let bottom_left_to_top_right = diagonal_distance(rows, columns, &too_far_grid, DiagonalDirection::BottomLeftToTopRight);
     let result = top_left_to_bottom_right_dist <= max_allowable_distance
         && bottom_left_to_top_right <= max_allowable_distance;
 
-    println!("top_left_dist={}, bottom_left_dist={}, result={}", top_left_to_bottom_right_dist, bottom_left_to_top_right, result);
     return result;
 }
 
@@ -394,37 +363,30 @@ fn man_dist_fits(
 // 2 OK
 // [0, 2]
 fn binary_search_problem(
-    rows: usize,
-    columns: usize,
+    rows: i32,
+    columns: i32,
     scores: &Vec<Vec<i32>>,
     min_range: i32,
     max_range: i32
 ) -> i32 {
     if min_range == max_range {
-        println!("[{}, {}] return", min_range, max_range);
         return min_range;
     }
 
     let expected_max_score = (min_range + max_range)/2;
     if man_dist_fits(rows, columns, scores, expected_max_score) {
-        println!("[{}, {}], {} YES", min_range, max_range, expected_max_score);
         return binary_search_problem(rows, columns, scores, min_range, expected_max_score);
     } else {
-        println!("[{}, {}], {} NO", min_range, max_range, expected_max_score);
         return binary_search_problem(rows, columns, scores, expected_max_score + 1, max_range);
     }
 }
 
 fn solve(
-    rows: usize,
-    columns: usize,
+    rows: i32,
+    columns: i32,
     grid: &mut Vec<Vec<i32>>
 ) {
-    println!("grid");
-    print_grid(rows, columns, &grid);
     let scores = bfs_score(rows, columns, grid);
-    println!("scores");
-    print_grid(rows, columns, &scores);
     let max_score = max_grid(rows, columns, &scores);
     if max_score == 0 {
         println!("{}", 0);
@@ -453,7 +415,7 @@ fn parse_row() -> Result<Vec<i32>, io::Error> {
     }
 }
 
-fn handle_rows_and_columns(rows: usize, columns: usize) {
+fn handle_rows_and_columns(rows: i32, columns: i32) {
     let mut grid: Vec<Vec<i32>> = Vec::new();
     for _i in 0..rows {
         match parse_row() {
@@ -475,9 +437,9 @@ fn handle_test_case() {
         Ok(_n) => {
             let row_col: Vec<&str> = buffer.split(' ').collect();
             
-            match row_col[0].trim().parse::<usize>() {
+            match row_col[0].trim().parse::<i32>() {
                 Ok(rows) => {
-                    match row_col[1].trim().parse::<usize>() {
+                    match row_col[1].trim().parse::<i32>() {
                         Ok(columns) => {
                             handle_rows_and_columns(rows, columns);
                         },
@@ -499,8 +461,7 @@ fn handle_test_case() {
 
 fn handle_test_cases(num_test_cases: i32) {
     for i in 1..(num_test_cases+1) {
-        // TODO fix ti print!()
-        println!("Case #{}: ", i);
+        print!("Case #{}: ", i);
         handle_test_case();
     }
 }
