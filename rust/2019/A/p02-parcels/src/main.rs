@@ -384,17 +384,15 @@ fn binary_search_problem(
 fn solve(
     rows: i32,
     columns: i32,
-    grid: &mut Vec<Vec<i32>>
-) {
+    grid: &Vec<Vec<i32>>
+) -> i32 {
     let scores = bfs_score(rows, columns, grid);
     let max_score = max_grid(rows, columns, &scores);
     if max_score == 0 {
-        println!("{}", 0);
-        return;
+        return 0;
     }
 
-    let min_max_score = binary_search_problem(rows, columns, &scores, 0, max_score);
-    println!("{}", min_max_score);
+    return binary_search_problem(rows, columns, &scores, 0, max_score);
 }
 
 // The first line of the input gives the number of test cases, T. T test cases follow.
@@ -428,7 +426,8 @@ fn handle_rows_and_columns(rows: i32, columns: i32) {
             }
         }
     }
-    solve(rows, columns, &mut grid);
+    let result = solve(rows, columns, &mut grid);
+    println!("{}", result);
 }
 
 fn handle_test_case() {
@@ -671,4 +670,129 @@ mod tests {
             4);
     }
 
+
+    #[test]
+    fn solve_one_row() {
+        assert_eq!(solve(1, 6,
+                &vec!(
+                    vec!(1, 0, 0, 0, 0, 0)
+                )),
+            2);
+        assert_eq!(solve(1, 5,
+                &vec!(
+                    vec!(1, 0, 0, 0, 0)
+                )),
+            1);
+        assert_eq!(solve(1, 4,
+                &vec!(
+                    vec!(1, 0, 0, 0)
+                )),
+            1);
+    }
+
+    #[test]
+    fn solve_one_column() {
+        assert_eq!(solve(6, 1,
+                &vec!(
+                    vec!(1),
+                    vec!(0),
+                    vec!(0),
+                    vec!(0),
+                    vec!(0),
+                    vec!(0)
+                )),
+            2);
+        assert_eq!(solve(5, 1,
+                &vec!(
+                    vec!(1),
+                    vec!(0),
+                    vec!(0),
+                    vec!(0),
+                    vec!(0)
+                )),
+            1);
+        assert_eq!(solve(4, 1,
+                &vec!(
+                    vec!(1),
+                    vec!(0),
+                    vec!(0),
+                    vec!(0),
+                    vec!(0)
+                )),
+            1);
+    }
+
+    #[test]
+    fn solve_no_good_spot() {
+        assert_eq!(solve(4, 3,
+                &vec!(
+                    vec!(0,1,0),
+                    vec!(0,1,0),
+                    vec!(0,0,0),
+                    vec!(1,0,1),
+                )),
+            1);
+        assert_eq!(solve(5, 5,
+                &vec!(
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,1,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                )),
+            4);
+    }
+    
+    #[test]
+    fn solve_3_corners() {
+        assert_eq!(solve(5, 5,
+                &vec!(
+                    vec!(1,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(1,0,0,0,1),
+                )),
+            3);
+        assert_eq!(solve(5, 5,
+                &vec!(
+                    vec!(1,0,0,0,1),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(1,0,0,0,0),
+                )),
+            3);
+        assert_eq!(solve(5, 5,
+                &vec!(
+                    vec!(1,0,0,0,1),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,1),
+                )),
+            3);
+        assert_eq!(solve(5, 5,
+            &vec!(
+                vec!(0,0,0,0,1),
+                vec!(0,0,0,0,0),
+                vec!(0,0,0,0,0),
+                vec!(0,0,0,0,0),
+                vec!(1,0,0,0,1),
+            )),
+        3);
+    }
+
+    #[test]
+    fn solve_not_max() {
+        assert_eq!(solve(5, 5,
+                &vec!(
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(0,0,0,0,0),
+                    vec!(1,0,1,0,0),
+                )),
+            3);
+    }
 }
