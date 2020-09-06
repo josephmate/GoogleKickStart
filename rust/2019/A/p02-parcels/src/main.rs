@@ -795,6 +795,18 @@ mod tests {
                 )),
             3);
     }
+    
+    #[test]
+    fn solve_broken_4_by_2_case() {
+        assert_eq!(solve(4, 2,
+                &vec!(
+                    vec!(0,0),
+                    vec!(0,0),
+                    vec!(0,0),
+                    vec!(1,1),
+                )),
+            2);
+    }
 
     fn score_position(
         rows: i32,
@@ -855,33 +867,165 @@ mod tests {
         }
     }
 
+    fn generate_grid_str(
+        rows: i32,
+        columns: i32,
+        grid: &mut Vec<Vec<i32>>
+    ) -> String {
+        let mut result = String::new();
+        for r in 0..rows {
+            for c in 0..columns {
+                result.push_str(grid[r as usize][c as usize].to_string().as_str());
+                result.push_str(" ");
+            }
+            result.push_str("\n");
+        }
+        return result;
+    }
+
+    fn compare_to_slow(
+        rows: i32,
+        columns: i32,
+        grid: &mut Vec<Vec<i32>>
+    ) {
+        assert_eq!(
+            solve(rows, columns, grid),
+            solve_slowly(rows, columns, grid),
+            "rows {} columns {}\ngrid\n{}",
+            rows,
+            columns,
+            generate_grid_str(rows, columns, grid)
+        );
+    }
+
     #[test]
-    fn compare_to_slow() {
+    fn test_compare_to_slow() {
         for cell_0 in 0..2 {
             for cell_1 in 0..2 {
+                for cell_2 in 0..2 {
+                    for cell_3 in 0..2 {
+                        for cell_4 in 0..2 {
+                            for cell_5 in 0..2 {
+                                for cell_6 in 0..2 {
+                                    for cell_7 in 0..2 {
+                                        if cell_0 > 0 || cell_1 > 0 || cell_2 > 0 || cell_3 > 0 || cell_4 > 0 || cell_5 > 0 || cell_6 > 0 || cell_7 > 0 {
+                                            compare_to_slow(1, 8, &mut vec!(
+                                                vec!(cell_0, cell_1, cell_2, cell_3, cell_4, cell_5, cell_6, cell_7),
+                                            ));
+                                            compare_to_slow(8, 1, &mut vec!(
+                                                vec!(cell_0),
+                                                vec!(cell_1),
+                                                vec!(cell_2),
+                                                vec!(cell_3),
+                                                vec!(cell_4),
+                                                vec!(cell_5),
+                                                vec!(cell_6),
+                                                vec!(cell_7),
+                                            ));
+                                            compare_to_slow(2, 4, &mut vec!(
+                                                vec!(cell_0, cell_1, cell_2, cell_3),
+                                                vec!(cell_4, cell_5, cell_6, cell_7),
+                                            ));
+                                            compare_to_slow(4, 2, &mut vec!(
+                                                vec!(cell_0, cell_1),
+                                                vec!(cell_2, cell_3),
+                                                vec!(cell_4, cell_5),
+                                                vec!(cell_6, cell_7),
+                                            ));
+                                        }
+                                    }
+                                    if cell_0 > 0 || cell_1 > 0 || cell_2 > 0 || cell_3 > 0 || cell_4 > 0 || cell_5 > 0 || cell_6 > 0 {
+                                        compare_to_slow(1, 7, &mut vec!(
+                                            vec!(cell_0, cell_1, cell_2, cell_3, cell_4, cell_5, cell_6),
+                                        ));
+                                        compare_to_slow(7, 1, &mut vec!(
+                                            vec!(cell_0),
+                                            vec!(cell_1),
+                                            vec!(cell_2),
+                                            vec!(cell_3),
+                                            vec!(cell_4),
+                                            vec!(cell_5),
+                                            vec!(cell_6),
+                                        ));
+                                    }
+                                }
+                                if cell_0 > 0 || cell_1 > 0 || cell_2 > 0 || cell_3 > 0 || cell_4 > 0 || cell_5 > 0 {
+                                    compare_to_slow(1, 6, &mut vec!(
+                                        vec!(cell_0, cell_1, cell_2, cell_3, cell_4, cell_5),
+                                    ));
+                                    compare_to_slow(6, 1, &mut vec!(
+                                        vec!(cell_0),
+                                        vec!(cell_1),
+                                        vec!(cell_2),
+                                        vec!(cell_3),
+                                        vec!(cell_4),
+                                        vec!(cell_5),
+                                    ));
+                                    compare_to_slow(2, 3, &mut vec!(
+                                        vec!(cell_0, cell_1, cell_2),
+                                        vec!(cell_3, cell_4, cell_5),
+                                    ));
+                                    compare_to_slow(3, 2, &mut vec!(
+                                        vec!(cell_0, cell_1),
+                                        vec!(cell_2, cell_3),
+                                        vec!(cell_4, cell_5),
+                                    ));
+                                }
+                            }
+                            if cell_0 > 0 || cell_1 > 0 || cell_2 > 0 || cell_3 > 0 || cell_4 > 0 {
+                                compare_to_slow(1, 5, &mut vec!(
+                                    vec!(cell_0, cell_1, cell_2, cell_3, cell_4),
+                                ));
+                                compare_to_slow(5, 1, &mut vec!(
+                                    vec!(cell_0),
+                                    vec!(cell_1),
+                                    vec!(cell_2),
+                                    vec!(cell_3),
+                                    vec!(cell_4),
+                                ));
+                            }
+                        }
+                        if cell_0 > 0 || cell_1 > 0 || cell_2 > 0 || cell_3 > 0 {
+                            compare_to_slow(1, 4, &mut vec!(
+                                vec!(cell_0, cell_1, cell_2, cell_3),
+                            ));
+                            compare_to_slow(4, 1, &mut vec!(
+                                vec!(cell_0),
+                                vec!(cell_1),
+                                vec!(cell_2),
+                                vec!(cell_3),
+                            ));
+                            compare_to_slow(2, 2, &mut vec!(
+                                vec!(cell_0, cell_1),
+                                vec!(cell_2, cell_3),
+                            ));
+                        }
+                    }
+                    if cell_0 > 0 || cell_1 > 0 || cell_2 > 0 {
+                        compare_to_slow(1, 3, &mut vec!(
+                            vec!(cell_0, cell_1, cell_2),
+                        ));
+                        compare_to_slow(3, 1, &mut vec!(
+                            vec!(cell_0),
+                            vec!(cell_1),
+                            vec!(cell_2),
+                        ));
+                    }
+                }
                 if cell_0 > 0 || cell_1 > 0 {
-                    let input_1_by_2 = &mut vec!(
+                    compare_to_slow(1, 2, &mut vec!(
                         vec!(cell_0, cell_1),
-                    );
-                    assert_eq!(
-                        solve(1, 2, input_1_by_2),
-                        solve_slowly(1, 2, input_1_by_2));
-                    let input_2_by_1 = &mut vec!(
+                    ));
+                    compare_to_slow(2, 1, &mut vec!(
                         vec!(cell_0),
                         vec!(cell_1),
-                    );
-                    assert_eq!(
-                        solve(2, 1, input_2_by_1),
-                        solve_slowly(2, 1, input_2_by_1));
+                    ));
                 }
             }
             if cell_0 > 0 {
-                let input_1_by_1 = &mut vec!(
+                compare_to_slow(1, 1, &mut vec!(
                     vec!(cell_0),
-                );
-                assert_eq!(
-                    solve(1, 1, input_1_by_1),
-                    solve_slowly(1, 1, input_1_by_1));
+                ));
             }
         }
     }
