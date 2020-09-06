@@ -243,6 +243,46 @@ enum DiagonalDirection {
 // 3 4               3 4
 // 4 5               2 3
 // 5 6               1 2
+//
+// 1 1
+// 1 1
+// 0 0
+// 0 0
+// should be 2, but we get 2 / 2 instead
+// 3 diagonals have 1's, which is how we get the 2 count
+// I'm not convinced about counting diagonals.
+// In this case we don't divide by 2, but other cases we do?
+// Like consider this case:
+// 1 1 1 1 1 0
+// 5 diagonals have
+// so distance between first and last diagonal is 4
+// the answer is 2 because you can place the piece in the middle
+//
+// 1 1 1
+// 1 1 1
+// 1 1 1
+// 0 0 0
+// should be 2
+// count 5 diags with 1s
+// then diag distance is 4 / 2 = 2
+//
+// 1 1 1 1
+// 1 1 1 1
+// 1 1 1 1
+// 1 1 1 1
+// 0 0 0 0
+// should be 4
+// count 7 diags with 1s
+// then diag distance is 6 / 3 = 3
+// maybe for square shapes add 1?
+// 
+// 1 1 1 1
+// 1 1 1 1
+// 1 1 1 1
+// 0 0 0 0
+// should be 3
+// count 6 diags with 1s
+// then diag distance is 5 / 3 = 2 + 1 for remainder
 fn diagonal_distance(
     rows: i32,
     columns: i32,
@@ -670,6 +710,27 @@ mod tests {
             4);
     }
 
+    #[test]
+    fn test_distance_4_by_2_mistake() {    
+        assert_eq!(diagonal_distance(4, 2,
+                &vec!(
+                    vec!(true, true),
+                    vec!(true, true),
+                    vec!(false, false),
+                    vec!(false, false),
+                ),
+                DiagonalDirection::TopLeftToBottomRight),
+            2);
+        assert_eq!(diagonal_distance(4, 2,
+                &vec!(
+                    vec!(true, true),
+                    vec!(true, true),
+                    vec!(false, false),
+                    vec!(false, false),
+                ),
+                DiagonalDirection::BottomLeftToTopRight),
+            2);
+    }
 
     #[test]
     fn solve_one_row() {
