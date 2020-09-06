@@ -647,4 +647,28 @@ mod tests {
             1);
     }
 
+    #[test]
+    fn test_distance_5_by_5_only_up_right() {    
+        assert_eq!(diagonal_distance(5, 5,
+                &vec!(
+                    vec!(false, false, false, false, true),
+                    vec!(false, false, false, true, false),
+                    vec!(false, false, true, false, false),
+                    vec!(false, true, false, false, false),
+                    vec!(true, false, false, false, false)
+                ),
+                DiagonalDirection::TopLeftToBottomRight),
+            0);
+        assert_eq!(diagonal_distance(5, 5,
+                &vec!(
+                    vec!(false, false, false, false, true),
+                    vec!(false, false, false, true, false),
+                    vec!(false, false, true, false, false),
+                    vec!(false, true, false, false, false),
+                    vec!(true, false, false, false, false)
+                ),
+                DiagonalDirection::BottomLeftToTopRight),
+            4);
+    }
+
 }
