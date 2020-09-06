@@ -795,4 +795,94 @@ mod tests {
                 )),
             3);
     }
+
+    fn score_position(
+        rows: i32,
+        columns: i32,
+        grid: &mut Vec<Vec<i32>>
+    ) -> i32 {
+        let scores = bfs_score(rows, columns, grid);
+        let mut max_so_far = 0;
+        for r in 0..rows {
+            for c in 0..columns {
+                if scores[r as usize][c as usize] > max_so_far {
+                    max_so_far = scores[r as usize][c as usize];
+                }
+            }
+        }
+        return max_so_far;
+    }
+    
+    fn solve_slowly(
+        rows: i32,
+        columns: i32,
+        grid: &mut Vec<Vec<i32>>
+    ) -> i32 {
+    
+        let mut min_so_far = None;
+        for r in 0..rows {
+            for c in 0..columns {
+                if grid[r as usize][c as usize] == 0 {
+                    // change it to 1
+                    grid[r as usize][c as usize] = 1;
+                    // score it
+                    let score = score_position(rows, columns, grid);
+                    // change it back
+                    grid[r as usize][c as usize] = 0;
+    
+                    match min_so_far {
+                        Some(min) => {
+                            if score < min {
+                                min_so_far = Some(score);
+                            }
+                        },
+                        None => {
+                            min_so_far = Some(score)
+                        }
+                    }
+                    
+                }
+            }
+        }
+    
+        match min_so_far {
+            Some(min) => {
+                return min;
+            },
+            None => {
+                return 0;
+            }
+        }
+    }
+
+    #[test]
+    fn compare_to_slow() {
+        for cell_0 in 0..2 {
+            for cell_1 in 0..2 {
+                if cell_0 > 0 || cell_1 > 0 {
+                    let input_1_by_2 = &mut vec!(
+                        vec!(cell_0, cell_1),
+                    );
+                    assert_eq!(
+                        solve(1, 2, input_1_by_2),
+                        solve_slowly(1, 2, input_1_by_2));
+                    let input_2_by_1 = &mut vec!(
+                        vec!(cell_0),
+                        vec!(cell_1),
+                    );
+                    assert_eq!(
+                        solve(2, 1, input_2_by_1),
+                        solve_slowly(2, 1, input_2_by_1));
+                }
+            }
+            if cell_0 > 0 {
+                let input_1_by_1 = &mut vec!(
+                    vec!(cell_0),
+                );
+                assert_eq!(
+                    solve(1, 1, input_1_by_1),
+                    solve_slowly(1, 1, input_1_by_1));
+            }
+        }
+    }
 }
