@@ -134,7 +134,28 @@ use std::collections::VecDeque;
 //        2.2.1) using / diagonal lines, search for the first and last occurrence of square from (2.1)
 //             2.2.1.1) if that distance is bigger than K, it does not fit in a K sized 'manning distance shape'
 //                      otherwise it does
-
+//
+// Looks like you cannot determine the mandistance size of a square using diagonals.
+// I'm going to fall back on the approach given by kickstart.
+// The binary search part remains the same.
+// Instead of determining the man distance size of the square,
+// you go through each square that is too far, and try to place the post there.
+// You can verify if you can place the post there and cover all the squares in O(1).
+// Kick start give us this hint:
+// dist((x1, y1), (x2, y2)) = max(abs(x1 + y1 - (x2 + y2)), abs(x1 - y1 - (x2 - y2)))
+// Fix (x2, y2), to the post office
+// then distance will be maximized when
+// x1 + y1 and x1 - y1 are either maximized or minimized.
+// So that algorithm becomes:
+// 1) binary search on K in range [0, max man distance]
+// 2) K is valid if for each position greater than K distance
+//    part it as true
+// 3) find min and max x1 + y1 from the positions that are true
+// 4) find min and max x1 - y1 from teh positions that are true
+// 5) for each position that is true
+//   5.1) is max(abs(x1 + y1 - (x2 + y2)), abs(x1 - y1 - (x2 - y2))) <= K ?
+//        if yes return true
+//        if not, continue
 
 
 fn bfs_score(
@@ -275,6 +296,7 @@ enum DiagonalDirection {
 // count 7 diags with 1s
 // then diag distance is 6 / 3 = 3
 // maybe for square shapes add 1?
+// How would I even know if it makes a square?
 // 
 // 1 1 1 1
 // 1 1 1 1
@@ -283,6 +305,9 @@ enum DiagonalDirection {
 // should be 3
 // count 6 diags with 1s
 // then diag distance is 5 / 3 = 2 + 1 for remainder
+// 
+// man_dist = abs(r1 - r2) + abs(c1 - c2)
+// 
 fn diagonal_distance(
     rows: i32,
     columns: i32,
