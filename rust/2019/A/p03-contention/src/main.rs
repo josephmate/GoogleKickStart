@@ -2,13 +2,14 @@ use std::io;
 
 
 
-fn solve(bookings: Vec<(i32,i32)>)
--> i32
+fn solve(
+    bookings: Vec<(i32,i32)>)
+    -> i32
 {
     return 0;
 }
 
-fn parse_row() -> Result<(i32,i32)>, io::Error> {
+fn parse_row() -> Result<(i32,i32), String> {
     let mut buffer = String::new();
     match io::stdin().read_line(&mut buffer) {
         // trim is needed to get rid of the newline
@@ -17,17 +18,17 @@ fn parse_row() -> Result<(i32,i32)>, io::Error> {
 
             match booking[0].trim().parse::<i32>() {
                 Ok(lower) => {
-                    match problem_sizes[1].trim().parse::<i32>() {
+                    match booking[1].trim().parse::<i32>() {
                         Ok(upper) => {
-                            return (lower, upper);
+                            Result::Ok((lower, upper))
                         },
-                        Err(parse_error) => parse_error
+                        Err(parse_error) => Result::Err(String::from("Second param did not parse to int"))
                     }
                 },
-                Err(parse_error) => parse_error
+                Err(parse_error) => Result::Err(String::from("First param did not parse to int"))
             }
         },
-        Err(io_error) => Err(io_error)
+        Err(io_error) => Result::Err(String::from("Could not read line"))
     }
 }
 
@@ -44,7 +45,7 @@ fn handle_seats_and_bookings(num_seats: i32, num_bookings: i32) {
             }
         }
     }
-    let result = solve(rows, columns, &mut grid);
+    let result = solve(bookings);
     println!("{}", result);
 }
 

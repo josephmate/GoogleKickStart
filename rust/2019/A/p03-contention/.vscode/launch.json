@@ -5,7 +5,7 @@
             "name": "(Windows) Launch",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/target/debug/p02-parcel.exe",
+            "program": "${workspaceRoot}/target/debug/p03-contention.exe",
             "args": ["<", "input_01.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
