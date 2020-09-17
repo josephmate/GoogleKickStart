@@ -2,9 +2,16 @@ use std::io;
 
 fn solve(
     num_checkpoints: i32,
-    mut player_scores: Vec<i32>
+    mut checkpoint_heights: Vec<i32>
 ) -> i32 {
-   return 0;
+    let mut num_of_peaks = 0;
+    for height_idx in 1..(num_checkpoints-1) {
+        if(checkpoint_heights[(height_idx-1) as usize] < checkpoint_heights[height_idx as usize]
+                && checkpoint_heights[(height_idx+1) as usize] < checkpoint_heights[height_idx as usize]) {
+            num_of_peaks += 1;
+        }
+    }
+    return num_of_peaks;
 }
 
 fn parse_int_vector_line() -> Result<Vec<i32>, String> {
@@ -86,7 +93,6 @@ fn handle_test_cases(test_cases: i32) {
 }
 
 fn main() {
-    let mut buffer = String::new();
     match parse_int_line() {
         Ok(test_cases) => {
             handle_test_cases(test_cases);
