@@ -1,5 +1,16 @@
 use std::io;
 
+// N : number of seats
+// Q : number of bookings
+// k : each booking assigned at least k seats 
+// Brainstorming
+// - naive: try all order permutations
+//     - O( Q! * Q * N)
+// - do something similar to problem 2 where we binary search on k
+// - 
+// - represent the problem as a graph
+//      - each booking is a node, edge between if they overlap
+//      - each booking,seat pair is a node, there is an edge if they
 
 
 fn solve(
