@@ -1,10 +1,40 @@
 use std::io;
 
+fn diff(
+    length: i32,
+    mut values: Vec<i32>
+) -> Vec<i32> {
+    let mut result = Vec::new();
+    for index in 1..length as usize {
+        result.push(values[index] - values[index - 1]);
+    }
+    return result;
+}
+
 fn solve(
     length: i32,
     mut values: Vec<i32>
 ) -> i32 {
-    return 0;
+    if length == 0 {
+        return 0;
+    }
+    if length == 1 {
+        return 1;
+    }
+    let diffs = diff(length, values);
+    let mut same_diff_count = 2;
+    let mut max_diff_count = 2;
+    for index in 1..(length-1) as usize {
+        if (diffs[index] == diffs[index-1]) {
+            same_diff_count += 1;
+            if same_diff_count > max_diff_count {
+                max_diff_count = same_diff_count;
+            }
+        } else {
+            same_diff_count = 2;
+        }
+    }
+    return max_diff_count;
 }
 
 fn parse_int_vector_line() -> Result<Vec<i32>, String> {
