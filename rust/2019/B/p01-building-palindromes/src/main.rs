@@ -1,4 +1,37 @@
 use std::io;
+use std::collections::HashMap;
+
+// palindrome of odd length
+// BAAAB
+// Must have only one character with odd count, all other must be even
+// If more than one character has odd count, then it's impossible to create a palindrom.
+
+// palindrome of even length
+// ABBA
+// Can have as many even character counts.
+// If any are odd, then there are an even number of them.
+// Then,Impossible to create a palindrome.
+
+// In summary, character with odd count must be 0 or 1.
+
+fn can_become_palindrome(
+    input_str: String,
+) -> bool {
+    let mut char_counts = HashMap::new();
+    for character in input_str.as_str().chars() { 
+        let count = char_counts.entry(character).or_insert(0);
+        *count +=1;
+    }
+
+    let mut odd_count = 0;
+    for (character, count) in &char_counts {
+        if count % 2 == 1 {
+            odd_count += 1;
+        }
+    }
+
+    return odd_count <= 1;
+}
 
 fn solve(
     num_blocks: i64,
@@ -6,7 +39,19 @@ fn solve(
     input_str: String,
     values: Vec<(i64,i64)>
 ) -> i64 {
-    return 0;
+    let mut total_palindromes = 0;
+    for index in 0..num_questions {
+        let (lower_bound, upper_bound) = values[index as usize];
+        match input_str.get(((lower_bound-1) as usize)..(upper_bound as usize)) {
+            Some(slice) => {
+                if can_become_palindrome(slice.to_string()) {
+                    total_palindromes += 1;
+                }
+            },
+            None => println!("Err"),
+        }
+    }
+    return total_palindromes;
 }
 
 fn parse_line() -> Result<String, String> {
