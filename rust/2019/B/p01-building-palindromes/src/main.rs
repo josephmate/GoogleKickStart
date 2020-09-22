@@ -1,5 +1,6 @@
 use std::io;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry::{Occupied, Vacant};
 
 // palindrome of odd length
 // BAAAB
@@ -14,7 +15,7 @@ use std::collections::HashMap;
 
 // In summary, character with odd count must be 0 or 1.
 
-fn can_become_palindrome(
+fn can_become_palindrome_inner(
     input_str: String,
 ) -> bool {
     let mut char_counts = HashMap::new();
@@ -33,6 +34,20 @@ fn can_become_palindrome(
     return odd_count <= 1;
 }
 
+fn can_become_palindrome(
+    lower_bound: i64,
+    upper_bound: i64,
+    input_str: &str,
+) -> bool {
+    match input_str.get(((lower_bound-1) as usize)..(upper_bound as usize)) {
+        Some(slice) => can_become_palindrome_inner(slice.to_string()),
+        None => {
+            println!("Err");
+            false
+        }
+    }
+}
+
 fn solve(
     num_blocks: i64,
     num_questions: i64,
@@ -40,15 +55,21 @@ fn solve(
     values: Vec<(i64,i64)>
 ) -> i64 {
     let mut total_palindromes = 0;
+    let mut previous_answers = HashMap::new();
     for index in 0..num_questions {
         let (lower_bound, upper_bound) = values[index as usize];
-        match input_str.get(((lower_bound-1) as usize)..(upper_bound as usize)) {
-            Some(slice) => {
-                if can_become_palindrome(slice.to_string()) {
-                    total_palindromes += 1;
-                }
-            },
-            None => println!("Err"),
+        
+        let can_be = previous_answers.entry((lower_bound, upper_bound))
+            .or_insert_with(|| can_become_palindrome(lower_bound, upper_bound, &input_str.as_str()));
+        /*
+        let can_be = match previous_answers.entry((lower_bound, upper_bound)) {
+            Vacant(entry) => entry.insert(can_become_palindrome(lower_bound, upper_bound, input_str)),
+            Occupied(entry) => entry.into_mut(),
+        };
+        */
+
+        if *can_be {
+            total_palindromes += 1;
         }
     }
     return total_palindromes;
