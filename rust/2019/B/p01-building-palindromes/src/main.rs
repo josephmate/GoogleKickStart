@@ -1,6 +1,5 @@
 use std::io;
 use std::collections::HashMap;
-use std::collections::hash_map::Entry::{Occupied, Vacant};
 
 // palindrome of odd length
 // BAAAB
@@ -15,37 +14,59 @@ use std::collections::hash_map::Entry::{Occupied, Vacant};
 
 // In summary, character with odd count must be 0 or 1.
 
-fn can_become_palindrome_inner(
-    input_str: String,
-) -> bool {
+// can pre compute prefixes and suffixes
+// Ex:
+// A
+// A B
+// A B C D
+// A B C D E
+//         E
+//       D E
+//     C D E
+//   B C D E
+// Now to make any count, we can do
+// 1 to 3 : already precomputed
+// 2 to 4 : 1 to 4 minus 1 to 1
+// 3 to 5 : 1 to 5 minus 1 to 2
+// in general X Y can be calculated with:
+// 1 to Y minus 1 to (X - 1)
+
+fn count_characters(
+    input_str: &str
+) -> HashMap<char, i64> {
     let mut char_counts = HashMap::new();
-    for character in input_str.as_str().chars() { 
+    for character in input_str.chars() { 
         let count = char_counts.entry(character).or_insert(0);
         *count +=1;
     }
+    return char_counts;
+}
 
-    let mut odd_count = 0;
-    for (character, count) in &char_counts {
-        if count % 2 == 1 {
-            odd_count += 1;
+fn pre_compute_prefix_char_counts(
+    num_blocks: i64,
+    input_str: String
+) -> HashMap<i64, HashMap<char, i64>> {
+    let mut pre_computed_prefix_char_counts = HashMap::new();
+    for position in 1..(num_blocks +1) {
+        match input_str.get((0 as usize)..(position as usize)) {
+            Some(slice) => {
+                pre_computed_prefix_char_counts.insert(position, count_characters(slice));
+            },
+            None => {
+                println!("Err");
+            }
         }
     }
-
-    return odd_count <= 1;
+    return pre_computed_prefix_char_counts;
 }
 
 fn can_become_palindrome(
     lower_bound: i64,
     upper_bound: i64,
-    input_str: &str,
+    pre_computed_prefix_char_counts: &HashMap<i64, HashMap<char, i64>>
+
 ) -> bool {
-    match input_str.get(((lower_bound-1) as usize)..(upper_bound as usize)) {
-        Some(slice) => can_become_palindrome_inner(slice.to_string()),
-        None => {
-            println!("Err");
-            false
-        }
-    }
+    return false;
 }
 
 fn solve(
@@ -54,21 +75,13 @@ fn solve(
     input_str: String,
     values: Vec<(i64,i64)>
 ) -> i64 {
+    println!("starting pre compute");
+    let pre_computed_prefix_char_counts = pre_compute_prefix_char_counts(num_blocks, input_str);
+    println!("finished pre compute");
     let mut total_palindromes = 0;
-    let mut previous_answers = HashMap::new();
     for index in 0..num_questions {
         let (lower_bound, upper_bound) = values[index as usize];
-        
-        let can_be = previous_answers.entry((lower_bound, upper_bound))
-            .or_insert_with(|| can_become_palindrome(lower_bound, upper_bound, &input_str.as_str()));
-        /*
-        let can_be = match previous_answers.entry((lower_bound, upper_bound)) {
-            Vacant(entry) => entry.insert(can_become_palindrome(lower_bound, upper_bound, input_str)),
-            Occupied(entry) => entry.into_mut(),
-        };
-        */
-
-        if *can_be {
+        if can_become_palindrome(lower_bound, upper_bound, &pre_computed_prefix_char_counts) {
             total_palindromes += 1;
         }
     }
