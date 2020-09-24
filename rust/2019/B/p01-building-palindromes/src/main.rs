@@ -31,34 +31,37 @@ use std::collections::HashMap;
 // in general X Y can be calculated with:
 // 1 to Y minus 1 to (X - 1)
 
-fn count_characters(
-    input_str: &str
+fn clone_map(
+    char_counts: HashMap<char, i64>
 ) -> HashMap<char, i64> {
-    let mut char_counts = HashMap::new();
-    for character in input_str.chars() { 
-        let count = char_counts.entry(character).or_insert(0);
-        *count +=1;
+    let mut cloned_map = HashMap::new();
+    for (key, value) in char_counts {
+        cloned_map.insert(key, value);
     }
-    return char_counts;
+    return cloned_map;
 }
 
 fn pre_compute_prefix_char_counts(
     num_blocks: i64,
     input_str: String
 ) -> HashMap<i64, HashMap<char, i64>> {
+    let mut accumulated_char_counts = HashMap::new();
     let mut pre_computed_prefix_char_counts = HashMap::new();
-    for position in 1..(num_blocks +1) {
-        match input_str.get((0 as usize)..(position as usize)) {
-            Some(slice) => {
-                pre_computed_prefix_char_counts.insert(position, count_characters(slice));
-            },
-            None => {
-                println!("Err");
-            }
-        }
+
+    let mut position = 1;
+    for character in input_str.chars() { 
+        let count = accumulated_char_counts.entry(character).or_insert(0);
+        *count +=1;
+        pre_computed_prefix_char_counts.insert(position, clone_map(accumulated_char_counts));
+        position += 1;
     }
+
     return pre_computed_prefix_char_counts;
 }
+
+///fn subtract_map(
+
+//)
 
 fn can_become_palindrome(
     lower_bound: i64,
@@ -66,6 +69,13 @@ fn can_become_palindrome(
     pre_computed_prefix_char_counts: &HashMap<i64, HashMap<char, i64>>
 
 ) -> bool {
+    let empty_map = HashMap::new();
+    let big_map = &pre_computed_prefix_char_counts[&upper_bound];
+    let small_map = if lower_bound > 1 {
+        &pre_computed_prefix_char_counts[&(lower_bound - 1)]
+    } else {
+        &empty_map
+    };
     return false;
 }
 
@@ -75,9 +85,7 @@ fn solve(
     input_str: String,
     values: Vec<(i64,i64)>
 ) -> i64 {
-    println!("starting pre compute");
     let pre_computed_prefix_char_counts = pre_compute_prefix_char_counts(num_blocks, input_str);
-    println!("finished pre compute");
     let mut total_palindromes = 0;
     for index in 0..num_questions {
         let (lower_bound, upper_bound) = values[index as usize];
