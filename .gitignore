@@ -10,3 +10,7 @@ build/
 .idea/
 lib/
 target/
+
+*.class
+
+*.iml
