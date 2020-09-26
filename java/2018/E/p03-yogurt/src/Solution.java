@@ -4,12 +4,27 @@ import java.util.*;
 public class Solution {
 
     private long solve(
-            long first,
-            long second,
-            List<Long> values
+            long numOfYogurt,
+            long yogurtsPerDay,
+            List<Long> yogurtExpiries
     ) {
-        long result = 0;
-        return result;
+        long totalYogurtEaten = 0;
+        long currentDay = 0;
+        int currentYogurtIndex = 0;
+        Collections.sort(yogurtExpiries);
+        while (currentYogurtIndex < numOfYogurt) {
+            long yogurtsEatenToday = 0;
+            while(yogurtsEatenToday < yogurtsPerDay
+                && currentYogurtIndex < numOfYogurt) {
+                if (currentDay < yogurtExpiries.get(currentYogurtIndex)) {
+                    yogurtsEatenToday++;
+                    totalYogurtEaten++;
+                }
+                currentYogurtIndex++;
+            }
+            currentDay++;
+        }
+        return totalYogurtEaten;
     }
 
     private void handleTestCase(int testCase) throws IOException {
