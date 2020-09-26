@@ -3,12 +3,77 @@ import java.util.*;
 
 public class Solution {
 
+    private boolean isAnotherPrefix(String input, Set<String> others) {
+        for (String other : others) {
+            if (!input.equals(other) && input.startsWith(other)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Set<String> deduplicatePrefixes(List<String> forbiddenSequences) {
+        Set<String> deduplicatedStrings = new HashSet<>(forbiddenSequences);
+        Set<String> result = new HashSet<>();
+
+        for (String prefix : deduplicatedStrings) {
+            if (!isAnotherPrefix(prefix, deduplicatedStrings)) {
+                result.add(prefix);
+            }
+        }
+
+        return result;
+    }
+
+    private long longPow(long base, long exponent) {
+        long result = 1;
+        for (int i = 0; i < exponent; i++) {
+            result = result * base;
+        }
+        return result;
+    }
+
+    /**
+     * We cannot enumerate all of the button press.
+     * That's potentially 2^50 in 20 seconds per test.
+     *
+     * As a result, we need a more efficient way of calculating the result.
+     *
+     * Notice that L len(forbidden) will eliminate
+     * 1 / L of the sequences
+     *
+     * For instance:
+     * A eliminates 1 / 2
+     * B eliminates 1 / 2
+     * AA eliminates 1 / 4
+     * AB eliminates 1 / 4
+     * BA eliminates 1 / 4
+     * BB eliminates 1 / 4
+     *
+     * Also notice that:
+     * A eliminates all the sequences that AA, AB eliminated.
+     * As result we want to deduplicate any repeated sequences.
+     * After de-duplicating we can count up the eliminated
+     * 2^N - eliminated
+     * will be the result.
+     *
+     * @param buttonPresses
+     * @param numStrings
+     * @param forbiddenSequences
+     * @return
+     */
     private long solve(
-            long num,
+            long buttonPresses,
             long numStrings,
-            List<String> values
+            List<String> forbiddenSequences
     ) {
-        return 0;
+        Set<String> deduplicatedPrefixes = deduplicatePrefixes(forbiddenSequences);
+        final long totalPossibleSequences = longPow(2, buttonPresses);
+        long numInvalidSequences = 0;
+        for (String deduplicatedPrefix : deduplicatedPrefixes) {
+            numInvalidSequences += totalPossibleSequences/longPow(2, deduplicatedPrefix.length());
+        }
+        return totalPossibleSequences - numInvalidSequences;
     }
 
     private void handleTestCase(int testCase) throws IOException {
