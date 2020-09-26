@@ -1,20 +1,54 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-/**
- *
- */
 public class Solution {
 
+    private Map<Character, Long> calcAnagramCount(String input) {
+        Map<Character, Long> anagramCounts = new HashMap<>();
+        for (char character : input.toCharArray()) {
+            long count = anagramCounts.getOrDefault(character, 0L);
+            count++;
+            anagramCounts.put(character, count);
+        }
+        return anagramCounts;
+    }
+
+    private Set<Map<Character, Long>> generateAllPossibleAnagramCounts(String input) {
+        Set<Map<Character, Long>> allPossibleAnagrams = new HashSet<>();
+        for (int upperBound = 0; upperBound < input.length(); upperBound++) {
+            for (int lowerBound = 0; lowerBound <= upperBound; lowerBound++) {
+                allPossibleAnagrams.add(
+                        calcAnagramCount(input.substring(lowerBound, upperBound + 1)));
+            }
+        }
+        return allPossibleAnagrams;
+    }
+
+    /**
+     * Since the length is at most 50 with 20 seconds per test set, I think we can implement this
+     * in a naive O(N^3)
+     *
+     * @param length
+     * @param first
+     * @param second
+     * @return
+     */
     private long solve(
             long length,
             String first,
             String second
     ) {
-        return 0;
+        long result = 0;
+        Set<Map<Character, Long>> allPossibleAnagramCounts = generateAllPossibleAnagramCounts(second);
+        for (int upperBound = 0; upperBound < length; upperBound++) {
+            for (int lowerBound = 0; lowerBound <= upperBound; lowerBound++) {
+                if (allPossibleAnagramCounts.contains(
+                        calcAnagramCount(first.substring(lowerBound, upperBound +1)))) {
+                    result++;
+                }
+            }
+        }
+        return result;
     }
 
     private void handleTestCase(int testCase) throws IOException {
