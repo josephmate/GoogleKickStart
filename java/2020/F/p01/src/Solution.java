@@ -3,11 +3,113 @@ import java.util.*;
 
 public class Solution {
 
+    private int findMin(
+            int startIdx,
+            long maxWithdraw,
+            List<Long> forbiddenSequences) {
+
+        int visited = 0;
+        int currentIdx = startIdx;
+        long minNumOfTurns = Long.MAX_VALUE;
+        int minIdx = -1;
+
+        while(visited < forbiddenSequences.size()) {
+            long currentValue = forbiddenSequences.get(currentIdx);
+            long numOfTurns = currentValue / maxWithdraw;
+            if (currentValue % maxWithdraw > 0) {
+                numOfTurns++;
+            }
+            if (currentValue > 0 && numOfTurns < minNumOfTurns) {
+                minIdx = currentIdx;
+                minNumOfTurns = numOfTurns;
+            }
+
+            visited++;
+            currentIdx++;
+            if (currentIdx >= forbiddenSequences.size()) {
+                currentIdx = 0;
+            }
+        }
+
+        return minIdx;
+    }
+
+    private void reduceWithdrawls(
+            int start,
+            int end,
+            long numOfTurns,
+            long maxWithdraw,
+            List<Long> amountToWithdraw) {
+        long valueToReduceBy = numOfTurns*maxWithdraw;
+        int visited = 0;
+        int currentIdx = start;
+        while (visited < amountToWithdraw.size()) {
+            amountToWithdraw.set(currentIdx, amountToWithdraw.get(currentIdx) - valueToReduceBy);
+
+            if (currentIdx == end) {
+                currentIdx++;
+                visited++;
+
+                if (currentIdx >= amountToWithdraw.size()) {
+                    currentIdx = 0;
+                }
+                break;
+            }
+
+            currentIdx++;
+            visited++;
+            if (currentIdx >= amountToWithdraw.size()) {
+                currentIdx = 0;
+            }
+        }
+
+        if (numOfTurns > 1) {
+            numOfTurns--;
+            valueToReduceBy = numOfTurns*maxWithdraw;
+            while (visited < amountToWithdraw.size()) {
+                amountToWithdraw.set(currentIdx, amountToWithdraw.get(currentIdx) - valueToReduceBy);
+                currentIdx++;
+                visited++;
+                if (currentIdx >= amountToWithdraw.size()) {
+                    currentIdx = 0;
+                }
+            }
+        }
+    }
+
     private String solve(
             long numPeople,
             long maxWithdraw,
-            List<Long> forbiddenSequences
+            List<Long> amountToWithdraw
     ) {
+        int currentCustomer = 0;
+        List<Integer> exited = new ArrayList<>();
+        while(exited.size() < numPeople) {
+            int nextDoneIdx = findMin(currentCustomer, maxWithdraw, amountToWithdraw);
+            long totalWithdrawAmount = amountToWithdraw.get(nextDoneIdx);
+            long numberOfTurnsNeed = totalWithdrawAmount / maxWithdraw;
+            if (totalWithdrawAmount % maxWithdraw > 0) {
+                numberOfTurnsNeed++;
+            }
+            reduceWithdrawls(currentCustomer, nextDoneIdx, numberOfTurnsNeed, maxWithdraw, amountToWithdraw);
+            exited.add(nextDoneIdx);
+            currentCustomer = nextDoneIdx;
+        }
+
+        StringBuilder result = new StringBuilder();
+        boolean first = false;
+        for(int exitee : exited) {
+            if (first) {
+                first = false;
+            } else {
+                result.append(" ");
+            }
+            result.append((exitee + 1));
+        }
+
+        return result.toString();
+    }
+    /*
         Map<Long, Long> remainingToWithdraw = new HashMap<>();
         Deque<Long> queue = new ArrayDeque<>();
         for(int i = 0; i < numPeople; i++) {
@@ -26,21 +128,7 @@ public class Solution {
                 exited.add(currentCustomer);
             }
         }
-
-        StringBuilder result = new StringBuilder();
-        boolean first = false;
-        for(long exitee : exited) {
-            if (first) {
-                first = false;
-            } else {
-                result.append(" ");
-            }
-            result.append((exitee + 1));
-        }
-
-        return result.toString();
-    }
-
+     */
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
         Pair<Long,Long> pair = parsePairLongLine();
