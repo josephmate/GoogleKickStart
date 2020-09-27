@@ -61,10 +61,8 @@ public class Solution {
             numOfTurns--;
             valueToReduceBy = numOfTurns*maxWithdraw;
 
-            while(!queue.isEmpty()) {
-                final int currentId = queue.pollFirst();
+            for(int currentId : queue) {
                 bankMap.put(currentId, bankMap.get(currentId) - valueToReduceBy);
-                thingsToAddBack.add(currentId);
             }
         }
 
