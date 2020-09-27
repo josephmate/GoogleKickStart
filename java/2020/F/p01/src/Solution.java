@@ -3,18 +3,15 @@ import java.util.*;
 
 public class Solution {
 
-    private int findMin(
-            int startIdx,
+    private int findMinId(
             long maxWithdraw,
-            List<Long> forbiddenSequences) {
+            Deque<Integer> queue,
+            Map<Integer, Long> bankMap) {
 
-        int visited = 0;
-        int currentIdx = startIdx;
+        int minId = -1;
         long minNumOfTurns = Long.MAX_VALUE;
-        int minIdx = -1;
-
-        while(visited < forbiddenSequences.size()) {
-            long currentValue = forbiddenSequences.get(currentIdx);
+        for(int bankId : queue) {
+            long currentValue = bankMap.get(bankId);
             long numOfTurns = currentValue / maxWithdraw;
             if (currentValue % maxWithdraw > 0) {
                 numOfTurns++;
@@ -23,65 +20,55 @@ public class Solution {
             // otherwise O(N^2) without this
             // might have a chain of ones that work
             if (numOfTurns == 1) {
-                return currentIdx;
+                return bankId;
             }
 
             if (currentValue > 0 && numOfTurns < minNumOfTurns) {
-                minIdx = currentIdx;
+                minId = bankId;
                 minNumOfTurns = numOfTurns;
-            }
-
-            visited++;
-            currentIdx++;
-            if (currentIdx >= forbiddenSequences.size()) {
-                currentIdx = 0;
             }
         }
 
-        return minIdx;
+        return minId;
     }
 
     private void reduceWithdrawls(
-            int start,
-            int end,
+            Deque<Integer> queue,
+            long nextDoneId,
             long numOfTurns,
             long maxWithdraw,
-            List<Long> amountToWithdraw) {
+            Map<Integer, Long> bankMap) {
         long valueToReduceBy = numOfTurns*maxWithdraw;
         int visited = 0;
-        int currentIdx = start;
-        while (visited < amountToWithdraw.size()) {
-            amountToWithdraw.set(currentIdx, amountToWithdraw.get(currentIdx) - valueToReduceBy);
 
-            if (currentIdx == end) {
-                currentIdx++;
-                visited++;
+        Deque<Integer> thingsToAddBack = new ArrayDeque<>();
 
-                if (currentIdx >= amountToWithdraw.size()) {
-                    currentIdx = 0;
-                }
+        while (true) {
+            final int currentId = queue.pollFirst();
+            bankMap.put(currentId, bankMap.get(currentId) - valueToReduceBy);
+
+            // reached the instances that need to fully decrement
+            // do not add back this id, because it needs to be removed
+            // it's already at 0 dollars.
+            if (currentId == nextDoneId) {
                 break;
             }
 
-            currentIdx++;
-            visited++;
-            if (currentIdx >= amountToWithdraw.size()) {
-                currentIdx = 0;
-            }
+            thingsToAddBack.add(currentId);
         }
 
         if (numOfTurns > 1) {
             numOfTurns--;
             valueToReduceBy = numOfTurns*maxWithdraw;
-            while (visited < amountToWithdraw.size()) {
-                amountToWithdraw.set(currentIdx, amountToWithdraw.get(currentIdx) - valueToReduceBy);
-                currentIdx++;
-                visited++;
-                if (currentIdx >= amountToWithdraw.size()) {
-                    currentIdx = 0;
-                }
+
+            while(!queue.isEmpty()) {
+                final int currentId = queue.pollFirst();
+                bankMap.put(currentId, bankMap.get(currentId) - valueToReduceBy);
+                thingsToAddBack.add(currentId);
             }
         }
+
+        queue.addAll(thingsToAddBack);
     }
 
     private String solve(
@@ -89,29 +76,38 @@ public class Solution {
             long maxWithdraw,
             List<Long> amountToWithdraw
     ) {
-        int currentCustomer = 0;
+        Deque<Integer> queue = new ArrayDeque<>();
+        Map<Integer, Long> bankMap = new HashMap<>();
+        for (int i = 0; i < numPeople; i++) {
+            queue.add(i);
+            bankMap.put(i, amountToWithdraw.get(i));
+        }
+
         List<Integer> exited = new ArrayList<>();
         while(exited.size() < numPeople) {
-            int nextDoneIdx = findMin(currentCustomer, maxWithdraw, amountToWithdraw);
-            long totalWithdrawAmount = amountToWithdraw.get(nextDoneIdx);
+            int nextDoneId = findMinId(maxWithdraw,
+                    queue,
+                    bankMap);
+
+            long totalWithdrawAmount = bankMap.get(nextDoneId);
             long numberOfTurnsNeed = totalWithdrawAmount / maxWithdraw;
             if (totalWithdrawAmount % maxWithdraw > 0) {
                 numberOfTurnsNeed++;
             }
-            reduceWithdrawls(currentCustomer, nextDoneIdx, numberOfTurnsNeed, maxWithdraw, amountToWithdraw);
-            exited.add(nextDoneIdx);
-            currentCustomer = nextDoneIdx;
+
+            reduceWithdrawls(queue, nextDoneId, numberOfTurnsNeed, maxWithdraw, bankMap);
+            exited.add(nextDoneId);
         }
 
         StringBuilder result = new StringBuilder();
         boolean first = false;
-        for(int exitee : exited) {
+        for(int exiter : exited) {
             if (first) {
                 first = false;
             } else {
                 result.append(" ");
             }
-            result.append((exitee + 1));
+            result.append((exiter + 1));
         }
 
         return result.toString();
