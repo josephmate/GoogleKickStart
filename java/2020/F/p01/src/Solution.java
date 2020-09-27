@@ -4,21 +4,53 @@ import java.util.*;
 public class Solution {
 
     private String solve(
-            long numPlanets,
-            List<Pair<Long, Long>> tubes
+            long numPeople,
+            long maxWithdraw,
+            List<Long> forbiddenSequences
     ) {
-        return "0";
+        Map<Long, Long> remainingToWithdraw = new HashMap<>();
+        Deque<Long> queue = new ArrayDeque<>();
+        for(int i = 0; i < numPeople; i++) {
+            queue.add(new Long(i));
+            remainingToWithdraw.put(new Long(i), forbiddenSequences.get(i));
+        }
+
+        List<Long> exited = new ArrayList<>();
+        while(!queue.isEmpty()) {
+            long currentCustomer = queue.pollFirst();
+            long remaining = remainingToWithdraw.get(currentCustomer) - maxWithdraw;
+            if (remaining > 0) {
+                remainingToWithdraw.put(currentCustomer, remaining);
+                queue.add(currentCustomer);
+            } else {
+                exited.add(currentCustomer);
+            }
+        }
+
+        StringBuilder result = new StringBuilder();
+        boolean first = false;
+        for(long exitee : exited) {
+            if (first) {
+                first = false;
+            } else {
+                result.append(" ");
+            }
+            result.append((exitee + 1));
+        }
+
+        return result.toString();
     }
 
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
-        long n = parseLongLine();
-        List<Pair<Long, Long>> values = parseManyLongPairs((int)n);
+        Pair<Long,Long> pair = parsePairLongLine();
+        List<Long> values = parseLongListLine();
         String result = solve(
-                n,
+                pair.first,
+                pair.second,
                 values
         );
-        writer.write(result);
+        writer.write(String.valueOf(result));
         writer.write("\n");
     }
 
@@ -131,7 +163,7 @@ public class Solution {
 
     public static void main(String[] args) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out))) {
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out))) {
             new Solution(reader, writer).parseAndSolveProblems();
         }
     }
