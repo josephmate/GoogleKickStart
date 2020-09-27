@@ -19,6 +19,13 @@ public class Solution {
             if (currentValue % maxWithdraw > 0) {
                 numOfTurns++;
             }
+
+            // otherwise O(N^2) without this
+            // might have a chain of ones that work
+            if (numOfTurns == 1) {
+                return currentIdx;
+            }
+
             if (currentValue > 0 && numOfTurns < minNumOfTurns) {
                 minIdx = currentIdx;
                 minNumOfTurns = numOfTurns;
