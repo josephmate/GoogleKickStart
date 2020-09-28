@@ -12,12 +12,12 @@ public class Solution {
     ) {
         return IntStream.range(0, (int)numPeople)
             .mapToObj(idx -> new Pair<>(idx, amountToWithdraw.get(idx)))
-            .map(pair -> new Pair(pair.getFirst(),
+            .map(pair -> new Pair<>(pair.getFirst(),
                     pair.getSecond() / maxWithdraw
-                    + pair.getSecond() % maxWithdraw > 0 ? 1 : 0))
-            .sorted(Comparator.<Pair, Long>comparing(Pair<Integer, Long>::getSecond)
-                    .thenComparing(Pair<Integer, Long>::getFirst))
-            .map(Pair<Integer, Long>::getFirst)
+                    + (pair.getSecond() % maxWithdraw > 0 ? 1L : 0L)))
+            .sorted(Comparator.comparingLong(Pair<Integer, Long>::getSecond)
+                    .thenComparingInt(Pair::getFirst))
+            .map(Pair::getFirst)
             .map(idx -> idx + 1)
             .map(String::valueOf)
             .collect(Collectors.joining(" "))
@@ -99,6 +99,11 @@ public class Solution {
 
         public Y getSecond() {
             return second;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + first +  "," + second + "]";
         }
     }
 
