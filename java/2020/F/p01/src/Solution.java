@@ -1,135 +1,29 @@
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Solution {
-
-    private int findMinId(
-            long maxWithdraw,
-            Deque<Integer> queue,
-            Map<Integer, Long> bankMap) {
-
-        int minId = -1;
-        long minNumOfTurns = Long.MAX_VALUE;
-        for(int bankId : queue) {
-            long currentValue = bankMap.get(bankId);
-            long numOfTurns = currentValue / maxWithdraw;
-            if (currentValue % maxWithdraw > 0) {
-                numOfTurns++;
-            }
-
-            // otherwise O(N^2) without this
-            // might have a chain of ones that work
-            if (numOfTurns == 1) {
-                return bankId;
-            }
-
-            if (currentValue > 0 && numOfTurns < minNumOfTurns) {
-                minId = bankId;
-                minNumOfTurns = numOfTurns;
-            }
-        }
-
-        return minId;
-    }
-
-    private void reduceWithdrawls(
-            Deque<Integer> queue,
-            long nextDoneId,
-            long numOfTurns,
-            long maxWithdraw,
-            Map<Integer, Long> bankMap) {
-        long valueToReduceBy = numOfTurns*maxWithdraw;
-        int visited = 0;
-
-        Deque<Integer> thingsToAddBack = new ArrayDeque<>();
-
-        while (true) {
-            final int currentId = queue.pollFirst();
-            bankMap.put(currentId, bankMap.get(currentId) - valueToReduceBy);
-
-            // reached the instances that need to fully decrement
-            // do not add back this id, because it needs to be removed
-            // it's already at 0 dollars.
-            if (currentId == nextDoneId) {
-                break;
-            }
-
-            thingsToAddBack.add(currentId);
-        }
-
-        if (numOfTurns > 1) {
-            numOfTurns--;
-            valueToReduceBy = numOfTurns*maxWithdraw;
-
-            for(int currentId : queue) {
-                bankMap.put(currentId, bankMap.get(currentId) - valueToReduceBy);
-            }
-        }
-
-        queue.addAll(thingsToAddBack);
-    }
 
     private String solve(
             long numPeople,
             long maxWithdraw,
             List<Long> amountToWithdraw
     ) {
-        Deque<Integer> queue = new ArrayDeque<>();
-        Map<Integer, Long> bankMap = new HashMap<>();
-        for (int i = 0; i < numPeople; i++) {
-            queue.add(i);
-            bankMap.put(i, amountToWithdraw.get(i));
-        }
-
-        List<Integer> exited = new ArrayList<>();
-        while(exited.size() < numPeople) {
-            int nextDoneId = findMinId(maxWithdraw,
-                    queue,
-                    bankMap);
-
-            long totalWithdrawAmount = bankMap.get(nextDoneId);
-            long numberOfTurnsNeed = totalWithdrawAmount / maxWithdraw;
-            if (totalWithdrawAmount % maxWithdraw > 0) {
-                numberOfTurnsNeed++;
-            }
-
-            reduceWithdrawls(queue, nextDoneId, numberOfTurnsNeed, maxWithdraw, bankMap);
-            exited.add(nextDoneId);
-        }
-
-        StringBuilder result = new StringBuilder();
-        boolean first = false;
-        for(int exiter : exited) {
-            if (first) {
-                first = false;
-            } else {
-                result.append(" ");
-            }
-            result.append((exiter + 1));
-        }
-
-        return result.toString();
+        return IntStream.range(0, (int)numPeople)
+            .mapToObj(idx -> new Pair<>(idx, amountToWithdraw.get(idx)))
+            .map(pair -> new Pair(pair.getFirst(),
+                    pair.getSecond() / maxWithdraw
+                    + pair.getSecond() % maxWithdraw > 0 ? 1 : 0))
+            .sorted(Comparator.<Pair, Long>comparing(Pair<Integer, Long>::getSecond)
+                    .thenComparing(Pair<Integer, Long>::getFirst))
+            .map(Pair<Integer, Long>::getFirst)
+            .map(idx -> idx + 1)
+            .map(String::valueOf)
+            .collect(Collectors.joining(" "))
+            ;
     }
-    /*
-        Map<Long, Long> remainingToWithdraw = new HashMap<>();
-        Deque<Long> queue = new ArrayDeque<>();
-        for(int i = 0; i < numPeople; i++) {
-            queue.add(new Long(i));
-            remainingToWithdraw.put(new Long(i), forbiddenSequences.get(i));
-        }
 
-        List<Long> exited = new ArrayList<>();
-        while(!queue.isEmpty()) {
-            long currentCustomer = queue.pollFirst();
-            long remaining = remainingToWithdraw.get(currentCustomer) - maxWithdraw;
-            if (remaining > 0) {
-                remainingToWithdraw.put(currentCustomer, remaining);
-                queue.add(currentCustomer);
-            } else {
-                exited.add(currentCustomer);
-            }
-        }
-     */
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
         Pair<Long,Long> pair = parsePairLongLine();
@@ -197,6 +91,14 @@ public class Solution {
         public Pair(X first, Y second) {
             this.first = first;
             this.second = second;
+        }
+
+        public X getFirst() {
+            return first;
+        }
+
+        public Y getSecond() {
+            return second;
         }
     }
 
