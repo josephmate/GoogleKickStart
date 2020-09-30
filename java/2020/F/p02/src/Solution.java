@@ -32,7 +32,7 @@ public class Solution {
         long deployTimeRemaining = maxDeployTime;
         long currentTime = sortedIntervals.get(0).first;
         while(currentIdx < sortedIntervals.size()) {
-            Pair<Long, Long> currentInterval = values.get(currentIdx);
+            Pair<Long, Long> currentInterval = sortedIntervals.get(currentIdx);
 
             long timeLeft = currentInterval.second - currentInterval.first;
             // need to consume time leftover from previous interval
