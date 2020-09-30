@@ -24,7 +24,7 @@ public class Solution {
             return 0;
         }
 
-        List<Pair<Long, Long>> sortedIntervals = values.stream().sorted(Comparator.comparing(Pair::getFirst))
+        List<Pair<Long, Long>> sortedIntervals = values.stream().sorted(Comparator.comparingLong(Pair::getFirst))
                 .collect(Collectors.toList());
 
         int robotsConsumed = 1;
