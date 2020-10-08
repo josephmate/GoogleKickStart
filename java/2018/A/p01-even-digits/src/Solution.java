@@ -7,10 +7,39 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+    private boolean isDigitOdd(char base10Digit) {
+        // character '0' is 48 in ascii
+        int value = (int)base10Digit - 48;
+        return value % 2 == 1;
+    }
+
+    private boolean isAllDigitsEven(long number) {
+        String base10Number = String.valueOf(number);
+        for (int i = 0; i < base10Number.length(); i++) {
+            if (isDigitOdd(base10Number.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private String solve(
-            long numPlanets
+            long startNumber
     ) {
-        return "0";
+        long currentUpPointer = startNumber;
+        long currentDownPointer = startNumber;
+        long distanceSoFar = 0;
+        while (true) {
+            if(isAllDigitsEven(currentUpPointer)) {
+                return String.valueOf(distanceSoFar);
+            }
+            if(isAllDigitsEven(currentDownPointer)) {
+                return String.valueOf(distanceSoFar);
+            }
+            distanceSoFar++;
+            currentUpPointer++;
+            currentDownPointer--;
+        }
     }
 
     private void handleTestCase(int testCase) throws IOException {
