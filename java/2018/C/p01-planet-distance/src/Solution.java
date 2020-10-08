@@ -1,13 +1,129 @@
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Solution {
+
+    private long findACycleMember(Map<Long, Set<Long>> adjacency) {
+        Set<Long> visited = new HashSet<>();
+        Deque<Pair<Long,Long>> queue = new ArrayDeque<>();
+        queue.add(new Pair<>(adjacency.keySet().iterator().next(), null));
+
+        while(!queue.isEmpty()) {
+            Pair<Long,Long> currentPair = queue.pollFirst();
+            long current = currentPair.first;
+            Long previous = currentPair.second;
+            if (visited.contains(current)) {
+                return current;
+            }
+
+            visited.add(current);
+            Set<Long> next = adjacency.get(current);
+            if (next != null) {
+                next.stream()
+                    .filter(val -> previous == null || !previous.equals(val))
+                    .map(val -> new Pair<>(val, current))
+                    .forEach(queue::add);
+            }
+        }
+
+        throw new IllegalStateException("Expected to find a cycle with len > 1");
+    }
+
+    private Set<Long> cycleMembers(long cycleMember, Map<Long, Set<Long>> adjacency) {
+        Deque<Triple<Long,Long, Set<Long>>> queue = new ArrayDeque<>();
+        queue.add(new Triple<>(cycleMember, null, new HashSet<>()));
+
+        while(!queue.isEmpty()) {
+            Triple<Long,Long, Set<Long>> currentTriple = queue.pollFirst();
+            long current = currentTriple.first;
+            Long previous = currentTriple.second;
+            Set<Long> cycleSoFar = currentTriple.third;
+            if (cycleSoFar.contains(current)) {
+                return cycleSoFar;
+            }
+
+            Set<Long> next = adjacency.get(current);
+            if (next != null) {
+                Set<Long> biggerCycle = new HashSet<>(cycleSoFar);
+                biggerCycle.add(current);
+                next.stream()
+                        .filter(val -> previous == null || !previous.equals(val))
+                        .map(val -> new Triple<>(val, current, biggerCycle))
+                        .forEach(queue::add);
+            }
+        }
+
+        throw new IllegalStateException("Expected to find a cycle with len > 1");
+    }
+
+    private long distanceToCycle(
+            long start,
+            Set<Long> cycleMembers,
+            Map<Long, Set<Long>> adjacency) {
+        Set<Long> visited = new HashSet<>();
+        Deque<Triple<Long,Long, Long>> queue = new ArrayDeque<>();
+        queue.add(new Triple<>(start, null, 0L));
+
+
+        while(!queue.isEmpty()) {
+            Triple<Long,Long,Long> currentTriple = queue.pollFirst();
+            long current = currentTriple.first;
+            Long previous = currentTriple.second;
+            long distance = currentTriple.third;
+            if (cycleMembers.contains(current)) {
+                return distance;
+            }
+            if (visited.contains(current)) {
+                continue;
+            }
+
+            visited.add(current);
+            Set<Long> next = adjacency.get(current);
+            if (next != null) {
+                next.stream()
+                        .filter(val -> previous == null || !previous.equals(val))
+                        .map(val -> new Triple<>(val, current, distance + 1))
+                        .forEach(queue::add);
+            }
+        }
+
+        throw new IllegalStateException("Expected to find a cycle with len > 1");
+    }
+
+    private void add(Map<Long, Set<Long>> adjacency, long key, long value) {
+        Set<Long> values = adjacency.get(key);
+        if (values == null) {
+            values = new HashSet<>();
+            adjacency.put(key, values);
+        }
+        values.add(value);
+    }
 
     private String solve(
             long numPlanets,
             List<Pair<Long, Long>> tubes
     ) {
-        return "0";
+        Map<Long, Set<Long>> adjacency = new HashMap<>();
+        for (Pair<Long,Long> tube : tubes) {
+            add(adjacency, tube.first, tube.second);
+            add(adjacency, tube.second, tube.first);
+        }
+
+        long cycleMember = findACycleMember(adjacency);
+        Set<Long> cycleMembers = cycleMembers(cycleMember, adjacency);
+
+        List<Long> result = new ArrayList<>();
+        for(int i = 1; i <= numPlanets; i++) {
+            result.add(distanceToCycle(i, cycleMembers, adjacency));
+        }
+
+        return result.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(" "));
     }
 
     private void handleTestCase(int testCase) throws IOException {
@@ -69,13 +185,38 @@ public class Solution {
         }
     }
 
-    private static final class Pair<X, Y> {
+    private static final class Triple<X,Y,Z> extends Pair<X,Y> {
+        public final Z third;
+
+        public Triple(X first, Y second, Z third) {
+            super(first, second);
+            this.third = third;
+        }
+
+        public String toString() {
+            return Arrays.asList(first, second, third).toString();
+        }
+    }
+
+    private static class Pair<X, Y> {
         public final X first;
         public final Y second;
 
         public Pair(X first, Y second) {
             this.first = first;
             this.second = second;
+        }
+
+        public X getFirst() {
+            return first;
+        }
+
+        public Y getSecond() {
+            return second;
+        }
+
+        public String toString() {
+            return Arrays.asList(first, second).toString();
         }
     }
 
