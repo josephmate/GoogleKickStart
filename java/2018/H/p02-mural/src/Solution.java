@@ -5,13 +5,50 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Key things to notice are:
+ * 1) this problem reduces to maximizing the sum of the N/2 sub array
+ * 2) All N/2 sub arrays can be computed in linear time by subtracing the first entry and adding
+ *    the next
+ */
 public class Solution {
+
+    private int[] extractPrettiness(String input) {
+        int [] result = new int[input.length()];
+        for(int i = 0; i < input.length(); i++) {
+            // 0 is 48 in ascii
+            result[i] = input.charAt(i) - 48;
+        }
+        return result;
+    }
 
     private String solve(
             long len,
             String input
     ) {
-        return "0";
+        int [] prettiness = extractPrettiness(input);
+        // painter can reach ceil( N / 2 ) since he makes the first move
+        int subArraySize = prettiness.length / 2;
+        if (prettiness.length % 2 == 1) {
+            subArraySize++;
+        }
+
+        // fill up the subarray
+        long currentScore = 0;
+        for(int i = 0; i < subArraySize; i++) {
+            currentScore += prettiness[i];
+        }
+        long maxSoFar = currentScore;
+
+        for(int i = subArraySize; i < prettiness.length; i++) {
+            currentScore -= prettiness[i-subArraySize];
+            currentScore += prettiness[i];
+            if (currentScore > maxSoFar) {
+                maxSoFar = currentScore;
+            }
+        }
+
+        return String.valueOf(maxSoFar);
     }
 
     private void handleTestCase(int testCase) throws IOException {
