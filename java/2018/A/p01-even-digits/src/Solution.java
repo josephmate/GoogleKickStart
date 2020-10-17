@@ -7,39 +7,77 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-    private boolean isDigitOdd(char base10Digit) {
-        // character '0' is 48 in ascii
-        int value = (int)base10Digit - 48;
-        return value % 2 == 1;
+    private List<Integer> toDigitsFromLong(long number) {
+        String numberStr = String.valueOf(number);
+        List<Integer> result = new ArrayList<>(numberStr.length());
+        for(int i = 0; i < numberStr.length(); i++) {
+            result.add(0);
+        }
+        for(int i = numberStr.length() - 1; i >= 0; i--) {
+            // '0' is 48 in ascii
+            result.set(numberStr.length() - 1 - i, numberStr.charAt(i) - 48);
+        }
+        return result;
     }
 
-    private boolean isAllDigitsEven(long number) {
-        String base10Number = String.valueOf(number);
-        for (int i = 0; i < base10Number.length(); i++) {
-            if (isDigitOdd(base10Number.charAt(i))) {
-                return false;
+    private long toLongFromDigits(List<Integer> digits) {
+        long sum = 0;
+        long currentMultiplier = 1;
+        for(int i = 0; i < digits.size(); i++) {
+            int currentDigit = digits.get(i);
+            sum += currentMultiplier * currentDigit;
+            currentMultiplier *= 10;
+        }
+        return sum;
+    }
+
+    private long increaseUntilEven(
+            long start
+    ) {
+        List<Integer> digits = toDigitsFromLong(start);
+        for(int i = digits.size() - 1; i >= 0; i--) {
+            if(digits.get(i) % 2 != 0) {
+                if (digits.get(i) == 9) {
+                    digits.add(2);
+                    digits.set(i, 0);
+                } else {
+                    digits.set(i, digits.get(i) + 1);
+                }
+                for(int j = i - 1; j >= 0; j--) {
+                    digits.set(j, 0);
+                }
+                return toLongFromDigits(digits);
             }
         }
-        return true;
+        return toLongFromDigits(digits);
+    }
+
+    /***
+     * 333
+     * 288
+     */
+    private long decreaseUntilEven(
+            long start
+    ) {
+        List<Integer> digits = toDigitsFromLong(start);
+        for(int i = digits.size() - 1; i >= 0; i--) {
+            if(digits.get(i) % 2 != 0) {
+                digits.set(i, digits.get(i) - 1);
+                for (int j = i - 1; j >= 0; j--) {
+                    digits.set(j, 8);
+                }
+                return toLongFromDigits(digits);
+            }
+        }
+        return toLongFromDigits(digits);
     }
 
     private String solve(
             long startNumber
     ) {
-        long currentUpPointer = startNumber;
-        long currentDownPointer = startNumber;
-        long distanceSoFar = 0;
-        while (true) {
-            if(isAllDigitsEven(currentUpPointer)) {
-                return String.valueOf(distanceSoFar);
-            }
-            if(isAllDigitsEven(currentDownPointer)) {
-                return String.valueOf(distanceSoFar);
-            }
-            distanceSoFar++;
-            currentUpPointer++;
-            currentDownPointer--;
-        }
+        long increased = increaseUntilEven(startNumber) - startNumber;
+        long decreased = startNumber - decreaseUntilEven(startNumber);
+        return String.valueOf(Math.min(increased, decreased));
     }
 
     private void handleTestCase(int testCase) throws IOException {
