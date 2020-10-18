@@ -1,9 +1,5 @@
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Solution {
 
@@ -72,16 +68,57 @@ public class Solution {
             values[i] = values[i] - 1;
         }
 
-        // try all possible digits
+        // try a gradient descent solution
+        // hoping there's a global max
+        Deque<Work> queue = new ArrayDeque<>();
+        Set<Long> tried = new HashSet<>();
+        for(int i = 0; i < values.length; i++) {
+            queue.add(new Work(values[i], Long.MAX_VALUE));
+            tried.add(values[i]);
+        }
         long minSoFar = Long.MAX_VALUE;
-        for(int i = 0; i < n; i++) {
-            long current = tryValue(i, n, values);
-            if (current < minSoFar) {
-                minSoFar = current;
+        while (!queue.isEmpty()) {
+            Work work = queue.pollFirst();
+            long distance = tryValue(work.comboToTry, n, values);
+            if (distance <= work.scoreFromLastCombo) {
+                final long upValueToTry;
+                if (work.comboToTry == n - 1) {
+                    upValueToTry = 0;
+                } else {
+                    upValueToTry = work.comboToTry + 1;
+                }
+                final long downValueToTry;
+                if (work.comboToTry == 0) {
+                    downValueToTry = n - 1;
+                } else {
+                    downValueToTry = work.comboToTry - 1;
+                }
+
+                if (!tried.contains(upValueToTry)) {
+                    queue.add(new Work(upValueToTry, distance));
+                    tried.add(upValueToTry);
+                }
+                if (!tried.contains(downValueToTry)) {
+                    queue.add(new Work(downValueToTry, distance));
+                    tried.add(downValueToTry);
+                }
+                if (distance < minSoFar) {
+                    minSoFar = distance;
+                }
             }
         }
 
         return String.valueOf(minSoFar);
+    }
+
+    private static class Work {
+        private final long comboToTry;
+        private final long scoreFromLastCombo;
+
+        private Work(long comboToTry, long scoreFromLastCombo) {
+            this.comboToTry = comboToTry;
+            this.scoreFromLastCombo = scoreFromLastCombo;
+        }
     }
 
     private void handleTestCase(int testCase) throws IOException {
