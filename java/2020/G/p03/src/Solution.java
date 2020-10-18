@@ -7,23 +7,102 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-    private String solve(
-            long len,
-            String input
+    private long tryDown(
+            long targetValue,
+            long startValue,
+            long modulus
     ) {
-        return "0";
+        // example 0 1 2
+        // 2 to 0
+        // 2 - 0 = 2
+        if(startValue >= targetValue) {
+            return startValue - targetValue;
+        }
+        // example 0 1 2
+        // 0 to 2
+        // 3 - (2 - 0) = 1
+        return modulus - (targetValue - startValue);
+    }
+
+    private long tryUp(
+            long targetValue,
+            long startValue,
+            long modulus
+    ) {
+        // example 0 1 2
+        // 0 to 2
+        // 2 - 0 = 2
+        if (startValue <= targetValue) {
+            return targetValue - startValue;
+        }
+        // example 0 1 2
+        // 2 to 0
+        // 3 - (2 - 0) = 1
+        return modulus - (startValue - targetValue);
+    }
+
+    private long tryValue(
+            long targetValue,
+            long modulus,
+            long[] values
+    ) {
+        long distanceSoFar = 0;
+
+        for(int i = 0; i < values.length; i++) {
+            long upDistance = tryUp(targetValue, values[i], modulus);
+            long downDistance = tryDown(targetValue, values[i], modulus);
+            if (upDistance < downDistance) {
+                distanceSoFar += upDistance;
+            } else {
+                distanceSoFar += downDistance;
+            }
+        }
+
+        return distanceSoFar;
+    }
+
+    private String solve(
+            long w,
+            long n,
+            List<Long> rawValues
+    ) {
+        // translate from 1 to N to 0 to N-1 to make it easier to work with modulus N
+        long[] values = toArray(rawValues);
+        for(int i =0 ; i < values.length; i++) {
+            values[i] = values[i] - 1;
+        }
+
+        // try all possible digits
+        long minSoFar = Long.MAX_VALUE;
+        for(int i = 0; i < n; i++) {
+            long current = tryValue(i, n, values);
+            if (current < minSoFar) {
+                minSoFar = current;
+            }
+        }
+
+        return String.valueOf(minSoFar);
     }
 
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
-        long n = parseLongLine();
-        String str = parseStringLine();
+        Pair<Long,Long> pair = parsePairLongLine();
+        List<Long> values = parseLongListLine();
         String result = solve(
-                n,
-                str
+                pair.getFirst(),
+                pair.getSecond(),
+                values
         );
         writer.write(result);
         writer.write("\n");
+    }
+
+    public long[] toArray(List<Long> values) {
+        long[] result = new long[values.size()];
+        for (int i = 0; i < values.size(); i++) {
+            result[i] = values.get(i);
+        }
+        return result;
     }
 
     public void parseAndSolveProblems() throws IOException {
