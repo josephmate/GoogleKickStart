@@ -7,20 +7,53 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+
+
+    private static class RecResult {
+        long count;
+        long scoreSum;
+    }
+
+    private void solveRecursive(RecResult result, long depth, long scoreSoFar, List<Long> values) {
+        if (values.size() == 1) {
+            result.count += 1;
+            result.scoreSum += scoreSoFar;
+            return;
+        }
+
+        for (int i = 0; i < values.size() - 1; i++) {
+            List<Long> clone = new ArrayList<>(values);
+            long val = clone.remove(i);
+            long currentRoundScore = val + clone.get(i);
+            clone.set(i, val + clone.get(i));
+            solveRecursive(result, depth + 1, scoreSoFar + currentRoundScore, clone);
+        }
+    }
+
     private String solve(
             long len,
-            String input
+            List<Long> values
     ) {
-        return "0";
+        RecResult result = new RecResult();
+        result.count = 0;
+        result.scoreSum = 0;
+
+        boolean[] visited = new boolean[values.size()];
+        for(int i = 0; i < visited.length; i++) {
+            visited[i] = false;
+        }
+
+        solveRecursive(result,  0,0, values);
+        return String.valueOf((double)result.scoreSum / (double)result.count);
     }
 
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
         long n = parseLongLine();
-        String str = parseStringLine();
+        List<Long> values = parseLongListLine();
         String result = solve(
                 n,
-                str
+                values
         );
         writer.write(result);
         writer.write("\n");
