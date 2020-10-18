@@ -7,43 +7,66 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-
-
     private static class RecResult {
         long count;
         long scoreSum;
     }
 
-    private void solveRecursive(RecResult result, long depth, long scoreSoFar, List<Long> values) {
+    private RecResult solveRecursive(
+            long depth,
+            List<Long> values,
+            Map<List<Long>, RecResult> memoized) {
+        RecResult result = new RecResult();
         if (values.size() == 1) {
-            result.count += 1;
-            result.scoreSum += scoreSoFar;
-            return;
+            result.count = 1;
+            result.scoreSum = 0;
+            for(int i = 0; i < depth; i++) {
+                System.out.print("\t");
+            }
+            System.out.println(values + " " + result.scoreSum + " " + result.count);
+            return result;
         }
 
+        if(memoized.containsKey(values)) {
+            result = memoized.get(values);
+            for(int i = 0; i < depth; i++) {
+                System.out.print("\t");
+            }
+            System.out.println(values + " " + result.scoreSum + " " + result.count + " MEMOIZED");
+            return result;
+        }
+
+        result.scoreSum = 0;
+        result.count = 0;
         for (int i = 0; i < values.size() - 1; i++) {
             List<Long> clone = new ArrayList<>(values);
             long val = clone.remove(i);
             long currentRoundScore = val + clone.get(i);
             clone.set(i, val + clone.get(i));
-            solveRecursive(result, depth + 1, scoreSoFar + currentRoundScore, clone);
+
+            RecResult partialResult = solveRecursive(depth + 1, clone, memoized);
+            result.scoreSum += partialResult.scoreSum + currentRoundScore;
+            result.count += partialResult.count;
         }
+
+        memoized.put(values, result);
+        for(int i = 0; i < depth; i++) {
+            System.out.print("\t");
+        }
+        System.out.println(values + " " + result.scoreSum + " " + result.count);
+        return result;
     }
 
     private String solve(
             long len,
             List<Long> values
     ) {
-        RecResult result = new RecResult();
-        result.count = 0;
-        result.scoreSum = 0;
-
         boolean[] visited = new boolean[values.size()];
         for(int i = 0; i < visited.length; i++) {
             visited[i] = false;
         }
 
-        solveRecursive(result,  0,0, values);
+        RecResult result = solveRecursive(0, values, new HashMap<>());
         return String.valueOf((double)result.scoreSum / (double)result.count);
     }
 
