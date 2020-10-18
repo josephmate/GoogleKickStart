@@ -8,19 +8,47 @@ import java.util.stream.Stream;
 public class Solution {
 
     private String solve(
-            long len,
-            String input
+            long n,
+            List<List<Long>> matrix
     ) {
-        return "0";
+        long maxSoFar = 0;
+
+        // first try the horizontal diagonals
+        for (int startC = 0; startC < n; startC++) {
+            long sumSoFar = 0;
+
+            for(int i = 0; startC + i < n; i++) {
+                sumSoFar += matrix.get(i).get(startC + i);
+            }
+
+            if (sumSoFar > maxSoFar) {
+                maxSoFar = sumSoFar;
+            }
+        }
+
+        // now try vertical diagonals
+        for (int startR = 0; startR < n; startR++) {
+            long sumSoFar = 0;
+
+            for(int i = 0; startR + i < n; i++) {
+                sumSoFar += matrix.get(startR + i).get(i);
+            }
+
+            if (sumSoFar > maxSoFar) {
+                maxSoFar = sumSoFar;
+            }
+        }
+
+        return String.valueOf(maxSoFar);
     }
 
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
         long n = parseLongLine();
-        String str = parseStringLine();
+        List<List<Long>> matrix = parseLongMatrix(n);
         String result = solve(
                 n,
-                str
+                matrix
         );
         writer.write(result);
         writer.write("\n");
@@ -31,6 +59,14 @@ public class Solution {
         for (int i = 1; i <= testCases; i++) {
             handleTestCase(i);
         }
+    }
+
+    private List<List<Long>> parseLongMatrix(long lines) throws IOException {
+        List<List<Long>> result = new ArrayList<>();
+        for(long i = 0; i < lines; i++) {
+            result.add(parseLongListLine());
+        }
+        return result;
     }
 
     private List<Long> parseLongListLine() throws IOException {

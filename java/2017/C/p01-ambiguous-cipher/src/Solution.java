@@ -3,14 +3,19 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Solution {
 
+    private
+
     private String solve(
             String input
     ) {
-        return input;
+        for(int i = 0; i < input.length(); i++) {
+
+        }
     }
 
     private void handleTestCase(int testCase) throws IOException {

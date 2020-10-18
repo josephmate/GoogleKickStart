@@ -8,18 +8,30 @@ import java.util.stream.Stream;
 public class Solution {
 
     private String solve(
-            long len,
             String input
     ) {
-        return "0";
+
+        long sumSoFar = 0;
+        long kickCount = 0;
+        int nextKick = input.indexOf("KICK");
+        int nextStart = input.indexOf("START");
+        while (nextKick >= 0 || nextStart >= 0) {
+            if (nextKick >= 0 && (nextKick < nextStart || nextStart < 0)) {
+                kickCount++;
+                nextKick = input.indexOf("KICK", nextKick + 1);
+            } else {
+                sumSoFar += kickCount;
+                nextStart = input.indexOf("START", nextStart + 1);
+            }
+        }
+
+        return String.valueOf(sumSoFar);
     }
 
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
-        long n = parseLongLine();
         String str = parseStringLine();
         String result = solve(
-                n,
                 str
         );
         writer.write(result);
