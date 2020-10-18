@@ -8,18 +8,15 @@ import java.util.stream.Stream;
 public class Solution {
 
     private String solve(
-            long len,
             String input
     ) {
-        return "0";
+        return input;
     }
 
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
-        long n = parseLongLine();
         String str = parseStringLine();
         String result = solve(
-                n,
                 str
         );
         writer.write(result);
