@@ -8,14 +8,23 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-    private
-
-    private String solve(
+    private Long solveImpl(
             String input
     ) {
         for(int i = 0; i < input.length(); i++) {
 
         }
+        return null;
+    }
+
+    private String solve(
+            String input
+    ) {
+        Long result = solveImpl(input);
+        if (result == null) {
+            return "AMBIGUOUS";
+        }
+        return String.valueOf(result);
     }
 
     private void handleTestCase(int testCase) throws IOException {
