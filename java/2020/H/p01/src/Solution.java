@@ -7,23 +7,35 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-    private String solve(
-            long a,
-            long b,
-            long c
+    private long solve(
+            long totalNumLevels,
+            long currentLevel,
+            long objectiveLevel
     ) {
-        return String.valueOf(0);
+        if (currentLevel <= objectiveLevel) {
+            return totalNumLevels;
+        }
+        long backTrackDistance = (currentLevel - objectiveLevel)
+                + (totalNumLevels - objectiveLevel);
+        if (backTrackDistance < totalNumLevels) {
+            return currentLevel + backTrackDistance;
+        }
+        return currentLevel+ totalNumLevels;
+    }
+
+    private String solve(List<Long> triple) {
+        long result = solve(
+                triple.get(0),
+                triple.get(1),
+                triple.get(2)
+        );
+        return String.valueOf(result);
     }
 
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
         List<Long> triple = parseLongListLine();
-        String result = solve(
-                triple.get(0),
-                triple.get(1),
-                triple.get(2)
-        );
-        writer.write(result);
+        writer.write(solve(triple));
         writer.write("\n");
     }
 
