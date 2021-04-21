@@ -9,6 +9,8 @@ import java.util.stream.StreamSupport;
 
 public class Solution {
 
+    private static final int MISSING = -1;
+
     private long[] convertToNumbers(String string) {
         long[] result = new long[string.length()];
         for(int i = 0; i < result.length; i++) {
@@ -82,16 +84,41 @@ public class Solution {
     private String solveImpl(
             String input
     ) {
-        long[] numbers = convertToNumbers(input);
-        long[] decrypted = new long[numbers.length];
+        long[] encrypted = convertToNumbers(input);
+        long[] decrypted = new long[encrypted.length];
         for (int i = 0; i < decrypted.length; i++) {
-            decrypted[i] = -1;
+            decrypted[i] = MISSING;
         }
-        decrypted[1] = numbers[0];
-        decrypted[decrypted.length-2] = numbers[numbers.length-1];
+        decrypted[1] = encrypted[0];
+        decrypted[decrypted.length-2] = encrypted[encrypted.length-1];
         boolean madeChange = true;
+        // NESTED LOOP is not efficient, but good enough because max input size is 50 characters
+        // 50*50 is only 2500 iterations of the loop! I suspect we could reduce this to linear,
+        // but I'm aiming to write a solution as quickly as possible.
         while(madeChange) {
-
+            madeChange = false;
+            for (int i = 0; i < decrypted.length; i++) {
+                if (decrypted[i] != MISSING) {
+                    continue;
+                }
+                if (i - 2 >= 0
+                    && decrypted[i-2] != MISSING
+                ) {
+                    madeChange = true;
+                    decrypted[i] = encrypted[i-1] - decrypted[i-2];
+                    if (decrypted[i] < 0) {
+                        decrypted[i] += 26;
+                    }
+                } else if (i + 2 <= decrypted.length - 1
+                        && decrypted[i+2] != MISSING
+                ) {
+                    madeChange = true;
+                    decrypted[i] = encrypted[i+1] - decrypted[i+2];
+                    if (decrypted[i] < 0) {
+                        decrypted[i] += 26;
+                    }
+                }
+            }
         }
 
         for (int i = 0; i < decrypted.length; i++) {
