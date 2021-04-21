@@ -10,7 +10,9 @@ public class Solution {
     private int countUniqChars(String string) {
         Set<Character> chars = new HashSet<>();
         for(char c : string.toCharArray()) {
-            chars.add(c);
+            if (c != ' ') {
+                chars.add(c);
+            }
         }
         return chars.size();
     }
