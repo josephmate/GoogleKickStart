@@ -7,8 +7,29 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-    private String solve(List<String> lines) {
-        return "TODO";
+    private int countUniqChars(String string) {
+        Set<Character> chars = new HashSet<>();
+        for(char c : string.toCharArray()) {
+            chars.add(c);
+        }
+        return chars.size();
+    }
+
+    private String solve(List<String> names) {
+        String result = "";
+        int maxSoFar = 0;
+        for (String name : names) {
+            int uniqChars = countUniqChars(name);
+            if (uniqChars > maxSoFar) {
+                result = name;
+                maxSoFar = uniqChars;
+            } else if (uniqChars == maxSoFar
+                    && name.compareTo(result) < 0
+            ) {
+                result = name;
+            }
+        }
+        return result;
     }
 
     private void handleTestCase(int testCase) throws IOException {
