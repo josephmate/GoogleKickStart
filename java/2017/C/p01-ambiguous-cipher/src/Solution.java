@@ -5,26 +5,112 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Solution {
 
-    private Long solveImpl(
+    private long[] convertToNumbers(String string) {
+        long[] result = new long[string.length()];
+        for(int i = 0; i < result.length; i++) {
+            result[i] = string.charAt(i) - 65;
+        }
+        return result;
+    }
+
+    private String convertToString(long[] numbers) {
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < numbers.length; i++) {
+            builder.append((char)(numbers[i] + 65));
+        }
+        return builder.toString();
+    }
+
+
+    /**
+     * <pre>
+     * S = 18, O = 14, U = 20, and P = 15
+     * First letter:        14  mod 26 = 14   O
+     * Second letter: (18 + 20) mod 26 = 12   M
+     * Third letter:  (14 + 15) mod 26 = 3    D
+     * Fourth letter:       20  mod 26 = 20   U
+     *
+     * 0           1               2         3
+     * D[1]   D[0]+D[2]       D[1]+D[3]   D[2]
+     * O       S     U          O   P      U
+     * O          M               D        U
+     *
+     * D[1]        = E[0]
+     * D[0] + D[2] = E[1]
+     * D[1] + D[3] = E[2]
+     *        D[2] = E[3]
+     *
+     * D[1] = E[0]
+     * D[2] = E[3]
+     * D[0] = E[1] - D[0]
+     * D[3] = E[2] - D[1]
+     *
+     *
+     *
+     * D[1]             = E[0]
+     * D[0]    + D[2]   = E[1]
+     * D[1]    + D[3]   = E[2]
+     * D[2]    + D[4]   = E[3]
+     * D[3]    + D[5]   = E[4]
+     *        ...
+     * D[i-1]  + D[i+1] = E[i]
+     *        ...
+     * D[N-2]  + D[N] = E[N-1]
+     *           D[N-1] = E[N]
+     *
+     * D[0] = E[1] - D[2]
+     * D[1] = E[0]
+     * D[1] = E[2] - D[3]
+     * D[2] = E[3] - D[4]
+     * D[2] = E[1] - D[0]
+     * ..
+     * D[i] = E[i+1] - D[i+2]
+     * D[i] = E[i-1] - D[i-2]
+     * ..
+     * D[N-1] = E[N-2] - D[N-3]
+     * D[N-1] = E[N]   - D[N+1] = E[N]
+     * D[N]   = E[N-1] - D[N-2]
+     * D[N]   = E[N+1] - D[N+2] = IMPOSSIBLE
+     * </pre>
+     * @param input the string to decrypt
+     * @return decrypted string if possible, null otherwise
+     */
+    private String solveImpl(
             String input
     ) {
-        for(int i = 0; i < input.length(); i++) {
+        long[] numbers = convertToNumbers(input);
+        long[] decrypted = new long[numbers.length];
+        for (int i = 0; i < decrypted.length; i++) {
+            decrypted[i] = -1;
+        }
+        decrypted[1] = numbers[0];
+        decrypted[decrypted.length-2] = numbers[numbers.length-1];
+        boolean madeChange = true;
+        while(madeChange) {
 
         }
-        return null;
+
+        for (int i = 0; i < decrypted.length; i++) {
+            if(decrypted[i] == -1) {
+                return null;
+            }
+        }
+
+        return convertToString(decrypted);
     }
 
     private String solve(
             String input
     ) {
-        Long result = solveImpl(input);
+        String result = solveImpl(input);
         if (result == null) {
             return "AMBIGUOUS";
         }
-        return String.valueOf(result);
+        return result;
     }
 
     private void handleTestCase(int testCase) throws IOException {
