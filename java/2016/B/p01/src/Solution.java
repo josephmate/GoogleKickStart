@@ -7,8 +7,28 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+    /**
+     * () 1
+     * ()() 3
+     * ()()() 6
+     * (()()) 3
+     * to get the most balanced, pair them up
+     * ()()()() 10
+     * 4
+     * 3
+     * 2
+     * 1
+     * @param l
+     * @param r
+     * @return
+     */
     private String solve(long l, long r) {
-        return "";
+        long balancedParens = Math.min(l, r);
+        long count = 0;
+        for(long i = 1; i <= balancedParens; i++) {
+            count += i;
+        }
+        return String.valueOf(count);
     }
 
     private void handleTestCase(int testCase) throws IOException {
