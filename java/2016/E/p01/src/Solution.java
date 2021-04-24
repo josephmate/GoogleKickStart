@@ -77,7 +77,7 @@ public class Solution {
         if ( (j - i + 1)%pattern.length() > 0 ) {
             int patternStart = i % pattern.length();
             int patternEnd = j % pattern.length();
-
+            totalBs += countBs(pattern, patternStart, patternEnd);
         }
 
         return String.valueOf(totalBs);
