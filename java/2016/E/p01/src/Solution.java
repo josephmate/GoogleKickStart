@@ -7,13 +7,13 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-    private int countBs(
+    private static int countBs(
             String pattern
     ) {
         return countBs(pattern, 0, pattern.length()-1);
     }
 
-    private int countBs(
+    private static int countBs(
             String pattern,
             int start,
             int end
@@ -61,7 +61,7 @@ public class Solution {
      * @param j
      * @return
      */
-    private String solve(
+    public static int solve(
             String pattern,
             int i,
             int j
@@ -80,14 +80,14 @@ public class Solution {
             totalBs += countBs(pattern, patternStart, patternEnd);
         }
 
-        return String.valueOf(totalBs);
+        return totalBs;
     }
 
     private void handleTestCase(int testCase) throws IOException {
         writer.write("Case #" + testCase + ": ");
         String line = parseStringLine();
         Pair<Long, Long> pair = parsePairLongLine();
-        writer.write(solve(line, pair.first.intValue(), pair.second.intValue()));
+        writer.write(String.valueOf(solve(line, pair.first.intValue(), pair.second.intValue())));
         writer.write("\n");
     }
 
