@@ -9,6 +9,7 @@ class SolutionTest {
 
     @Test
     public void test() {
+        assertEquals(1, Solution.solve(3, 2, "ABC"));
     }
 
 }

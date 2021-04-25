@@ -7,12 +7,26 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-    public static long solve(
-            long i,
-            long j,
+    private static long calcGoodness(
             String pattern
     ) {
-        return 0;
+        long currentGoodness = 0;
+        for(int i = 0; i < pattern.length()/2; i++) {
+            char frontChar = pattern.charAt(i);
+            char endChar = pattern.charAt(pattern.length() - i - 1);
+            if (frontChar == endChar) {
+                currentGoodness++;
+            }
+        }
+        return currentGoodness;
+    }
+
+    public static long solve(
+            long strlen,
+            long targetGoodness,
+            String pattern
+    ) {
+        return Math.abs(calcGoodness(pattern) - targetGoodness);
     }
 
     private void handleTestCase(int testCase) throws IOException {
