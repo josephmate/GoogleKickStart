@@ -61,22 +61,23 @@ public class Solution {
      * @param j
      * @return
      */
-    public static int solve(
+    public static long solve(
             String pattern,
-            int i,
-            int j
+            long i,
+            long j
     ) {
         // 0 index
         i = i - 1;
         j = j - 1;
 
         int numOfBsInPattern = countBs(pattern);
-        int fullPatterns = (j - i + 1)/pattern.length();
-        int totalBs = fullPatterns*numOfBsInPattern;
+        long fullPatterns = (j - i + 1)/pattern.length();
+        long totalBs = fullPatterns*numOfBsInPattern;
 
         if ( (j - i + 1)%pattern.length() > 0 ) {
-            int patternStart = i % pattern.length();
-            int patternEnd = j % pattern.length();
+            // these should be safe down casts since pattern len is bounded by 100 chars
+            int patternStart = (int)(i % pattern.length());
+            int patternEnd = (int)(j % pattern.length());
             totalBs += countBs(pattern, patternStart, patternEnd);
         }
 
@@ -87,7 +88,7 @@ public class Solution {
         writer.write("Case #" + testCase + ": ");
         String line = parseStringLine();
         Pair<Long, Long> pair = parsePairLongLine();
-        writer.write(String.valueOf(solve(line, pair.first.intValue(), pair.second.intValue())));
+        writer.write(String.valueOf(solve(line, pair.first, pair.second)));
         writer.write("\n");
     }
 
