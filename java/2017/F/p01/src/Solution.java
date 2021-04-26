@@ -11,6 +11,48 @@ public class Solution {
         return (long)Math.floor(Math.sqrt(size));
     }
 
+    /**
+     * Solution 1)
+     * At first I thought a greedy solution going from largest to smallest square would work.
+     * Count example 3*3 + 3*3 shows that greedy solution does not work.
+     *
+     * Now I will try a naive brute force.
+     * sqrt(10000) = 100
+     *
+     * i_1 * 1^2 + i_2 * 2^2 + ... + i_99 * 99^2 + i_100 * 100^2 = N
+     * min (i_1 + i_2 + ... + i_99 + i_100)
+     *
+     * Solution 2) Brainstorming
+     * How about start all in i_1
+     * then try to move stuff into i_2
+     * then try to move stuff into i_3
+     * ...
+     * then try to move stuff into i_99
+     * then try to move stuff into i_100
+     * Not sure how to 'bubble' up the cakes into large cakes
+     *
+     * Solution 3) Try all possible combos
+     * for i_1 from 1 to 10000/1^2
+     *  for i_2 from 1 to 10000/2^2
+     *   ...
+     *    for i_99 from 1 tp 10000/99^2
+     *     for i_100 from 1 tp 10000/100^2
+     * Runtime:
+     * 10000/1^2 * 10000/2^2 * ...  * 10000/99^2  * 10000/100^2
+     * It's not feasible to calculate these ~10^77 operations.
+     *
+     * Solution 4) Try all possible combos, a bit smarter
+     * for i_1 from 1 to (10000)/1^2
+     *  for i_2 from 1 to (10000 - i_1)/2^2
+     *   ...
+     *    for i_99 from 1 tp (10000 - i_1 - i_2 - ... - i_98)/99^2
+     *     for i_100 from 1 tp (10000 - i_1 - i_2 - ... - i_99)/100^2
+     * Even with that optimization it will be too slow since it's reduces by big-O smaller than
+     * the big-O of solution 3)
+     *
+     * @param requestedCakeArea
+     * @return
+     */
     public static long solve(
             final long requestedCakeArea
     ) {
