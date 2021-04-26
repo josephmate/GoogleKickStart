@@ -7,10 +7,23 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+    private static long sqrt(long size) {
+        return (long)Math.floor(Math.sqrt(size));
+    }
+
     public static long solve(
-            long requestedCakeArea
+            final long requestedCakeArea
     ) {
-        return 0;
+        long remainingCakeArea = requestedCakeArea;
+        long cakesEaten = 0;
+        // assume greedy solution going from largest to smallest
+        for (long currentCakeSideLen = sqrt(remainingCakeArea); currentCakeSideLen >= 1; currentCakeSideLen--) {
+            final long currentSquareArea = currentCakeSideLen*currentCakeSideLen;
+            cakesEaten += remainingCakeArea / currentSquareArea;
+            remainingCakeArea = remainingCakeArea % currentSquareArea;
+        }
+
+        return cakesEaten;
     }
 
     private void handleTestCase(int testCase) throws IOException {
