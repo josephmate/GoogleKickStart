@@ -11,10 +11,15 @@ public class Solution {
             String pattern
     ) {
         long currentGoodness = 0;
-        for(int i = 0; i < pattern.length()/2; i++) {
+        // 0 1 2 3
+        //     ^
+        // 0 1 2 3 4
+        //     ^
+        final int midIdx = pattern.length()/2;
+        for(int i = 0; i < midIdx; i++) {
             char frontChar = pattern.charAt(i);
             char endChar = pattern.charAt(pattern.length() - i - 1);
-            if (frontChar == endChar) {
+            if (frontChar != endChar) {
                 currentGoodness++;
             }
         }
