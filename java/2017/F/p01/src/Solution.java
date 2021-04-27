@@ -50,6 +50,16 @@ public class Solution {
      * Even with that optimization it will be too slow since it's reduces by big-O smaller than
      * the big-O of solution 3)
      *
+     * Solution 4)
+     * What if we do something similar to a problem I was stuck on before:
+     * - search on the number of cakes needed
+     *
+     * Brute force from 1 cake to N cakes until we find one that works.
+     * Using the greedy solution + trying from 1 to 10,000 the upper bound number of cakes is 7
+     * cakes!
+     *
+     * So at worst our algorithm is 100^7, which is 2^46 which takes hours to a day to calculate.
+     *
      * @param requestedCakeArea
      * @return
      */

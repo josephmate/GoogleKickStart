@@ -5,6 +5,15 @@ import org.junit.jupiter.api.Test;
 class SolutionTest {
 
     @Test
+    public void upperBoundCakes() {
+        long max = 0;
+        for(int i = 1; i<= 10000; i++) {
+            max = Math.max(max, Solution.solve(i));
+        }
+        System.out.println(max + " upperBoundCakes");
+    }
+
+    @Test
     public void runtimeBruteForce1() {
         double count = 1;
         for(long i = 1; i <= 100; i++) {
