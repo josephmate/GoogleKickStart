@@ -11,6 +11,22 @@ public class Solution {
         return (long)Math.floor(Math.sqrt(size));
     }
 
+    private static boolean canFit(long cakes, long requestedCakeArea, long biggestCake) {
+        if(requestedCakeArea == 0 && cakes == 0) {
+            return true;
+        }
+        if(cakes == 0 || requestedCakeArea < 0) {
+            return false;
+        }
+
+        for(long i = biggestCake; i >= 1; i--) {
+            if (canFit(cakes-1, requestedCakeArea-(i*i), biggestCake)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Solution 1)
      * At first I thought a greedy solution going from largest to smallest square would work.
@@ -60,22 +76,24 @@ public class Solution {
      *
      * So at worst our algorithm is 100^7, which is 2^46 which takes hours to a day to calculate.
      *
+     * Let's try it anyways. Maybe we get lucky and all the problems are only 3 to 4 cakes!
+     *
      * @param requestedCakeArea
      * @return
      */
     public static long solve(
             final long requestedCakeArea
     ) {
-        long remainingCakeArea = requestedCakeArea;
-        long cakesEaten = 0;
-        // assume greedy solution going from largest to smallest
-        for (long currentCakeSideLen = sqrt(remainingCakeArea); currentCakeSideLen >= 1; currentCakeSideLen--) {
-            final long currentSquareArea = currentCakeSideLen*currentCakeSideLen;
-            cakesEaten += remainingCakeArea / currentSquareArea;
-            remainingCakeArea = remainingCakeArea % currentSquareArea;
+        // anything beyond 5 cakes will take to long to compute
+        // 100^5 = 2^34
+        // 100^6 = 2^40
+        // 100^7 = 2^47
+        for(int cakes = 1; cakes <=5 ; cakes++) {
+            if (canFit(cakes, requestedCakeArea, sqrt(requestedCakeArea))) {
+                return cakes;
+            }
         }
-
-        return cakesEaten;
+        return 0;
     }
 
     private void handleTestCase(int testCase) throws IOException {

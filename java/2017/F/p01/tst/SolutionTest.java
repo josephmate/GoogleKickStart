@@ -63,11 +63,18 @@ class SolutionTest {
         assertEquals(2, Solution.solve(3*3 + 3*3));
     }
 
+    private boolean isASquare(long value) {
+        double sqrt = Math.sqrt(value);
+        return Math.abs(sqrt - Math.floor(sqrt)) < 0.00001;
+    }
+
     @Test
     public void testManyPairsOfSquares() {
-        for (int i = 1; i <= 1000; i++) {
-            for (int j = 1; j <= 1000; j++) {
-                assertEquals(2, Solution.solve(i*i + j*j), i + " " + j);
+        for (int i = 1; i <= 100; i++) {
+            for (int j = 1; j <= 100; j++) {
+                if(!isASquare(i*i + j*j)) {
+                    assertEquals(2, Solution.solve(i * i + j * j), i + " " + j);
+                }
             }
         }
     }
