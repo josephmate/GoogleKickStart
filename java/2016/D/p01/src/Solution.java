@@ -7,7 +7,77 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-    public static long solve(
+    /**
+     * M < N <= 10
+     * M < N <= 2000
+     *
+     * Solution 1: Brute force
+     * Try every permutation of voting and see which one A is always winning.
+     * O( (N+M) * (N+M)! ) because
+     * 20*20! = 2^66 impossible
+     * 4000*4000! = way too big to calculate
+     *
+     * Solution 2: Brute force better
+     * At each vote you have two choices. Try both and count.
+     * That means at each position you have 2 choices. Now the complexity becomes a little lower:
+     * O(2^(N+M))
+     * 2^20 is computable
+     * 2^4000 is way too big to compute
+     *
+     * Solution 3: Divide and Conquer
+     * Is the someway we can reformulate the problem as a smaller sub problem, then have a quick way
+     * to combine the sub problem(s) to solve the current problem?
+     * What we know the solution to M,N-1 or M-1,N Can we use that to solve N?
+     * let P(M,N-1) and P(M-1,N) be solved.
+     * What is P(M,N)?
+     *   How does adding an M affect P(M-1,N)?
+     *   How does adding an N affect P(M,N-1)?
+     *   How do we combine the previous two results?
+     *
+     * Here I'm solving a bunch of small patterns to see if there's a way I can combine the sub
+     * problems.
+     * A B
+     * N M
+     * 0 0 => 0
+     * 0 1 => 0
+     * 1 0 => 100
+     * 1 1 => 0
+     * 0 2 => 0
+     * 1 2 => 0
+     * 2 0 => 100
+     * 2 1 => 33
+     * 2 2 => 0
+     * 0 3 => 0
+     * 1 3 => 0
+     * 2 3 => 0
+     * 3 0 => 100
+     * 3 1 => 50  (A A A B), (A A B A), (A B A A), (B A A A)
+     * 3 2 => 20
+     * 3 3 => 0
+     * 3 4 0.0
+     * 3 5 0.0
+     * 4 0 1.0
+     * 4 1 0.6
+     * 4 2 0.3333333333333333
+     * 4 3 0.14285714285714285
+     * 4 4 0.0
+     * 4 5 0.0
+     * 5 0 1.0
+     * 5 1 0.6666666666666666
+     * 5 2 0.42857142857142855
+     * 5 3 0.25
+     * 5 4 0.1111111111111111
+     * 5 5 0.0
+     *
+     * Turns out that I might not even need to do divide and conquer. After writing all of the above
+     * small examples, I notice a pattern where the result is (N-M)/(N+M) but I have no reason why
+     * it works for all examples with N,M <= 5. I'm going try and submit with this.
+     *
+     * @param n the number of A votes
+     * @param m the number of B votes
+     * @return
+     */
+    public static double solve(
             final long n,
             final long m
     ) {
@@ -15,7 +85,7 @@ public class Solution {
             throw new IllegalArgumentException(" n (" + n +") must be greater than m (" + m + ")");
         }
 
-        return 0;
+        return (double)(n-m)/(double)(n+m);
     }
 
     private void handleTestCase(int testCase) throws IOException {
