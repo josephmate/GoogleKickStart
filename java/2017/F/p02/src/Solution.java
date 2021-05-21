@@ -9,12 +9,12 @@ public class Solution {
 
   /**
    *   Kicksort(A): // A is a 0-indexed list with E elements
-   *     If E ≤ 1, return A.
+   *     If E <= 1, return A.
    *     Otherwise:
    *       Create empty new lists B and C.
    *       Choose A[floor((E-1)/2)] as the pivot P.
    *       For i = 0 to E-1, except for i = floor((E-1)/2):
-   *         If A[i] ≤ P, append it to B.
+   *         If A[i] <= P, append it to B.
    *         Otherwise, append it to C.
    *     Return the list Kicksort(B) + [P] + Kicksort(C).
    *     // [P] is a new list with just P; + means concatenate
