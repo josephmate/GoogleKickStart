@@ -7,10 +7,48 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+  /**
+   *   Kicksort(A): // A is a 0-indexed list with E elements
+   *     If E ≤ 1, return A.
+   *     Otherwise:
+   *       Create empty new lists B and C.
+   *       Choose A[floor((E-1)/2)] as the pivot P.
+   *       For i = 0 to E-1, except for i = floor((E-1)/2):
+   *         If A[i] ≤ P, append it to B.
+   *         Otherwise, append it to C.
+   *     Return the list Kicksort(B) + [P] + Kicksort(C).
+   *     // [P] is a new list with just P; + means concatenate
+   */
     public static boolean solveImpl(
         List<Long> values
     ) {
-      return false;
+      if (values.size() <= 1) {
+        return true;
+      }
+
+      List<Long> left = new ArrayList<>();
+      List<Long> right = new ArrayList<>();
+      int pivotPosn = (values.size()-1)/2;
+      long pivot = values.get(pivotPosn);
+
+      for (int i = 0; i < values.size(); i++) {
+        if (i != pivotPosn) {
+          long currentVal = values.get(i);
+          if (currentVal <= pivot) {
+            left.add(currentVal);
+          } else {
+            right.add(currentVal);
+          }
+        }
+      }
+
+      if (left.isEmpty()) {
+        return solveImpl(right);
+      } else if (right.isEmpty()) {
+        return solveImpl(left);
+      } else {
+        return false;
+      }
     }
 
     public static String solve(
