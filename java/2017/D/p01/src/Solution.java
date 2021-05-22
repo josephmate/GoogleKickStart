@@ -22,7 +22,7 @@ public class Solution {
    * However, I have doubts that this solution will work because of a key difference: in this
    * problem we have the option of sight seeing or not.
    *
-   * Solution 3: Earliest arrival time
+   * Solution 3: Greedy Earliest arrival time
    * Using the bus route solution, we can figure out the earliest time to arrive.
    * Then from there, we can incrementally determine if we can add on more sight seeing.
    *
@@ -37,11 +37,18 @@ public class Solution {
    * still the same delay at the furthest city, with risk of missing more buses.
    *
    * I will try to code up this solution and see if it works.
+   *
+   * After more thinking about it, the belief that pick any closer city, than the furtest city would
+   * result in a delay in at least the delay as long as picking the furthest is incorrect because,
+   * if the sight seeing time fits within the delay of waiting for the bus, that would be better than
+   * picking the furthest city!
+   *
+   * Solution 4: TODO
    */
   public static Optional<Long> solveImpl(
-      long sightSeeingTime,
-      long latestArrivalTime,
-      List<Triple<Long, Long, Long>> cities
+      final long sightSeeingTime,
+      final long latestArrivalTime,
+      final List<Triple<Long, Long, Long>> cities
   ) {
     return Optional.empty();
   }
