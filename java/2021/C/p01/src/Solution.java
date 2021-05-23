@@ -23,7 +23,9 @@ public class Solution {
     if (b < a) {
       // in this case we are always smaller, so the remaining characters are free to be whatever
       // they want
-      return ((b - 97 + 1) * pow(k, midPosn - currentPosn, 1000000007)) % 1000000007;
+      final long allFreeCount = ((b - 97 + 1) * pow(k, midPosn - currentPosn - 1, 1000000007)) % 1000000007;
+      System.out.println(currentPosn + " allFreeCount: " + allFreeCount);
+      return allFreeCount;
     } else {
       // in this case we have two sub cases
       // 1) when the character is the same as a
@@ -35,7 +37,12 @@ public class Solution {
       // 2) when the character is less than a, the remaining characters are free to be whatever
       // they want to be.
       final long numCharsLessThanA = a-97;
-      final long numFreeCharacters = (numCharsLessThanA * pow(k, midPosn - currentPosn, 1000000007)) % 1000000007;
+      final long numFreeCharacters = (numCharsLessThanA * pow(k, midPosn - currentPosn -1, 1000000007)) % 1000000007;
+
+
+      System.out.println(currentPosn + " sameAsACount: " + sameAsACount);
+      System.out.println(currentPosn + " numCharsLessThanA: " + numCharsLessThanA);
+      System.out.println(currentPosn + " numFreeCharacters: " + numFreeCharacters);
 
       return (sameAsACount + numFreeCharacters) % 1000000007;
     }
@@ -55,6 +62,7 @@ public class Solution {
     } else {
       midPosn = 1 + str.length() / 2;
     }
+    System.out.println("-----" + str);
     return solveImpl((int)k, 0, midPosn, str.toCharArray());
   }
 
