@@ -14,12 +14,11 @@ public class Solution {
       char [] str
   ) {
     if (currentPosn >= midPosn) {
-      return 0;
+      return 1;
     }
 
     final char a = str[currentPosn];
     final char b = str[str.length-currentPosn-1];
-    final char lesser;
     if (b < a) {
       // in this case we are always smaller, so the remaining characters are free to be whatever
       // they want
