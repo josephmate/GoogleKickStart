@@ -7,6 +7,32 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+  public static long solveImpl(
+      int k,
+      int currentPosn,
+      int midPosn,
+      char [] str
+  ) {
+    final char a = str[currentPosn];
+    final char b = str[str.length-currentPosn-1];
+    final char lesser;
+    if (a < b) {
+      lesser = a;
+    } else {
+      lesser = b;
+    }
+
+    int result = 0;
+    // for the characters less than a, the remaining characters are free to be what ever
+    // they want
+    final int numCharsLessThanA = a - lesser - 1;
+    if (numCharsLessThanA > 0) {
+      final int remainingCharacters =
+    }
+
+    return result;
+  }
+
   /**
    *
    */
@@ -21,22 +47,7 @@ public class Solution {
     } else {
       midPosn = 1 + str.length() / 2;
     }
-
-    int result = 0;
-    for (int i = 0; i < midPosn; i++) {
-      final char a = str.charAt(i);
-      final char b = str.charAt(str.length()-i-1);
-      if (b < a) {
-        result += ((b-96) * pow(k, midPosn-i-1, 1000000007)) % 1000000007;
-      } else {
-        if (a > 97) {
-          result += ((a - 96 - 1) * pow(k, midPosn - i - 1, 1000000007)) % 1000000007;
-        }
-      }
-
-    }
-
-    return result;
+    return solveImpl((int)k, 0, midPosn, str.toCharArray());
   }
 
   private void handleTestCase(int testCase) throws IOException {
