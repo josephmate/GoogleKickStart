@@ -14,7 +14,7 @@ public class Solution {
    * 0 1
    *   2/2 = 1
    */
-  private static char [] calcMaxPalindrome(String str) {
+  private static Pair<String, Boolean> calcMaxPalindrome(String str) {
     final int midPosn;
     if (str.length() % 2 == 0) {
       midPosn = str.length() / 2;
@@ -22,39 +22,53 @@ public class Solution {
       midPosn = 1 + str.length() / 2;
     }
 
-    char [] result = new char[str.length()];
+    boolean allEqual = true;
+    StringBuilder result = new StringBuilder();
     for (int i = 0; i < midPosn; i++) {
       final char a = str.charAt(i);
       final char b = str.charAt(str.length()-i-1);
       final char lesser;
       if (a < b) {
         lesser = a;
+        allEqual = false;
+      } else if (b < a) {
+        lesser = b;
+        allEqual = false;
       } else {
         lesser = b;
       }
-      if (a == 'a') {
-        return null; // no letter less than a
-      }
 
-      result[i] = (char)(lesser-1);
-      result[str.length()-i-1] = (char)(lesser-1);
+      result.append(lesser);
     }
 
-    return result;
+    return new Pair<>(result.toString(), allEqual);
   }
 
+  /**
+   * 
+   */
   public static long solve(
       long n,
       long k,
       String str
   ) {
-    char [] maxPalindrom = calcMaxPalindrome(str);
-    if (maxPalindrom == null) {
-      return 0;
-    }
+    Pair<String, Boolean> p = calcMaxPalindrome(str);
+    String maxPalindrom = p.first;
+    boolean allEquals = p.second;
 
     System.out.println(maxPalindrom);
-    return 0;
+    System.out.println(allEquals);
+
+    if(allEquals) {
+
+      return 0;
+    } else {
+      int result = 1;
+      for (int i = 0; i < maxPalindrom.length(); i++) {
+        result = (result * Math.min((int)k, maxPalindrom.charAt(i) - 97 + 1)) % 1000000007;
+      }
+      return result;
+    }
   }
 
   private void handleTestCase(int testCase) throws IOException {
