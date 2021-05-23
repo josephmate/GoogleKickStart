@@ -8,13 +8,13 @@ import java.util.stream.Stream;
 public class Solution {
 
   /**
-   * 0 1 2
-   *   3/2 =1
    *
-   * 0 1
-   *   2/2 = 1
    */
-  private static Pair<String, Boolean> calcMaxPalindrome(String str) {
+  public static long solve(
+      long n,
+      long k,
+      String str
+  ) {
     final int midPosn;
     if (str.length() % 2 == 0) {
       midPosn = str.length() / 2;
@@ -22,53 +22,21 @@ public class Solution {
       midPosn = 1 + str.length() / 2;
     }
 
-    boolean allEqual = true;
-    StringBuilder result = new StringBuilder();
+    int result = 0;
     for (int i = 0; i < midPosn; i++) {
       final char a = str.charAt(i);
       final char b = str.charAt(str.length()-i-1);
-      final char lesser;
-      if (a < b) {
-        lesser = a;
-        allEqual = false;
-      } else if (b < a) {
-        lesser = b;
-        allEqual = false;
+      if (b < a) {
+        result += ((b-96) * pow(k, midPosn-i-1, 1000000007)) % 1000000007;
       } else {
-        lesser = b;
+        if (a > 97) {
+          result += ((a - 96 - 1) * pow(k, midPosn - i - 1, 1000000007)) % 1000000007;
+        }
       }
 
-      result.append(lesser);
     }
 
-    return new Pair<>(result.toString(), allEqual);
-  }
-
-  /**
-   * 
-   */
-  public static long solve(
-      long n,
-      long k,
-      String str
-  ) {
-    Pair<String, Boolean> p = calcMaxPalindrome(str);
-    String maxPalindrom = p.first;
-    boolean allEquals = p.second;
-
-    System.out.println(maxPalindrom);
-    System.out.println(allEquals);
-
-    if(allEquals) {
-
-      return 0;
-    } else {
-      int result = 1;
-      for (int i = 0; i < maxPalindrom.length(); i++) {
-        result = (result * Math.min((int)k, maxPalindrom.charAt(i) - 97 + 1)) % 1000000007;
-      }
-      return result;
-    }
+    return result;
   }
 
   private void handleTestCase(int testCase) throws IOException {
@@ -83,6 +51,14 @@ public class Solution {
     for (int i = 1; i <= testCases; i++) {
       handleTestCase(i);
     }
+  }
+
+  private static long pow(long base, long exponent, long mod) {
+    long result = 1;
+    for (int i = 0; i < exponent; i++)  {
+      result = (result * base) % mod;
+    }
+    return result;
   }
 
   private static long sqrt(long size) {
