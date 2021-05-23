@@ -13,24 +13,32 @@ public class Solution {
       int midPosn,
       char [] str
   ) {
+    if (currentPosn >= midPosn) {
+      return 0;
+    }
+
     final char a = str[currentPosn];
     final char b = str[str.length-currentPosn-1];
     final char lesser;
-    if (a < b) {
-      lesser = a;
+    if (b < a) {
+      // in this case we are always smaller, so the remaining characters are free to be whatever
+      // they want
+      return ((b - 97 + 1) * pow(k, midPosn - currentPosn, 1000000007)) % 1000000007;
     } else {
-      lesser = b;
-    }
+      // in this case we have two sub cases
+      // 1) when the character is the same as a
+      // 2) when the character is less than a
 
-    int result = 0;
-    // for the characters less than a, the remaining characters are free to be what ever
-    // they want
-    final int numCharsLessThanA = a - lesser - 1;
-    if (numCharsLessThanA > 0) {
-      final int remainingCharacters =
-    }
+      // 1) when the character is the same as a, we solve the sub problem
+      final long sameAsACount = solveImpl(k, currentPosn+1, midPosn, str);
 
-    return result;
+      // 2) when the character is less than a, the remaining characters are free to be whatever
+      // they want to be.
+      final long numCharsLessThanA = a-97;
+      final long numFreeCharacters = (numCharsLessThanA * pow(k, midPosn - currentPosn, 1000000007)) % 1000000007;
+
+      return (sameAsACount + numFreeCharacters) % 1000000007;
+    }
   }
 
   /**
