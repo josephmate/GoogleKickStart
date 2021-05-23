@@ -38,12 +38,36 @@ public class Solution {
    *
    * I will try to code up this solution and see if it works.
    *
-   * After more thinking about it, the belief that pick any closer city, than the furtest city would
+   * After more thinking about it, the belief that pick any closer city, than the furthest city would
    * result in a delay in at least the delay as long as picking the furthest is incorrect because,
    * if the sight seeing time fits within the delay of waiting for the bus, that would be better than
    * picking the furthest city!
    *
-   * Solution 4: TODO
+   * Solution 4: Dynamic Programming
+   * Knowing the solution to a problem of N-1 does not help you solve a problem of N.
+   * Assume you know the max sight seeing for N-3 (3 cities removed.). You cannot use that solution
+   * to solve N-2 because you could potentially remove the sight seeing from the first city, giving
+   * a sub optimal for N-3, but allows you to include cities N-2, N-1, and N.
+   *
+   * The sub problems in the other directions has a similar problem. Assume you have a solution for
+   * 4 to N, then removing something from 4 to N could potentially allow you to sightsee at 1, 2 and 3.
+   *
+   * Solution 5: Divide and Conquer
+   * Assume you can check if x cities fit in F(N) time.
+   * Binary search on N
+   * ex:
+   *   Try N/2 sight seeing
+   *    if yes then 3N/4
+   *      etc
+   *    if no try N/4
+   *      etc
+   * In total this would take lgN * F(N) time
+   *
+   * How quickly can we check if x cities fit?
+   * Naive would be to try all N choose x combos (maximized by x=N/2) which I think has a complexity
+   * that too large.
+   *
+   * At this point, I gave up and checking the analysis that google provided.
    */
   public static Optional<Long> solveImpl(
       final long sightSeeingTime,
