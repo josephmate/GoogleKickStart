@@ -7,14 +7,80 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+  public static boolean isPalindrome(String str) {
+    return new StringBuilder(str).reverse().toString().equals(str);
+  }
+
+  public static List<String> generateAll(int n, int k, List<String> str) {
+    List<String> result = new ArrayList<>();
+    if (n == str.size()) {
+      StringBuilder b = new StringBuilder();
+      str.stream().forEach(b::append);
+      result.add(b.toString());
+      return result;
+    }
+
+    for (int i = 0; i < k; i++) {
+      str.add("" + (char)(97+i));
+      result.addAll(generateAll(n, k, str));
+      str.remove(str.size()-1);
+    }
+    return result;
+  }
+
+  public static List<String> generateAll(int n, int k) {
+    return generateAll(n, k, new ArrayList<>());
+  }
+
+  public static long naive(int k, String s) {
+    return generateAll(s.length(), k)
+        .stream()
+        .filter(Solution::isPalindrome)
+        .filter(pali -> pali.compareTo(s) < 0)
+        .count();
+  }
+
   public static long solveImpl(
       int k,
       int currentPosn,
       int midPosn,
       char [] str
   ) {
-    if (currentPosn >= midPosn) {
-      return 1;
+    if (currentPosn == midPosn-1) {
+      if (currentPosn + 1 < str.length) {
+        if (str.length % 2 == 0) {
+          final char a = str[currentPosn];
+          final char b = str[currentPosn + 1];
+
+          if (a < b) {
+            // input bc
+            // aa
+            // bb
+            return a - 96;
+          } else if (b > a) {
+            // input cb
+            // aa
+            // bb
+            return b - 96;
+          } else {
+            // input bb
+            // aa
+            // bb
+            return a - 97;
+          }
+        } else {
+          final char a = str[currentPosn];
+          final char b = str[currentPosn + 1];
+
+          if (a < b) {
+            return a - 96;
+          } else {
+            return a - 97;
+          }
+        }
+      } else {
+        return str[currentPosn] - 97;
+      }
     }
 
     final char a = str[currentPosn];
@@ -23,7 +89,6 @@ public class Solution {
       // in this case we are always smaller, so the remaining characters are free to be whatever
       // they want
       final long allFreeCount = ((b - 97 + 1) * pow(k, midPosn - currentPosn - 1, 1000000007)) % 1000000007;
-      System.out.println(currentPosn + " allFreeCount: " + allFreeCount);
       return allFreeCount;
     } else {
       // in this case we have two sub cases
@@ -37,11 +102,6 @@ public class Solution {
       // they want to be.
       final long numCharsLessThanA = a-97;
       final long numFreeCharacters = (numCharsLessThanA * pow(k, midPosn - currentPosn -1, 1000000007)) % 1000000007;
-
-
-      System.out.println(currentPosn + " sameAsACount: " + sameAsACount);
-      System.out.println(currentPosn + " numCharsLessThanA: " + numCharsLessThanA);
-      System.out.println(currentPosn + " numFreeCharacters: " + numFreeCharacters);
 
       return (sameAsACount + numFreeCharacters) % 1000000007;
     }
@@ -61,8 +121,8 @@ public class Solution {
     } else {
       midPosn = 1 + str.length() / 2;
     }
-    System.out.println("-----" + str);
-    return solveImpl((int)k, 0, midPosn, str.toCharArray());
+    //return solveImpl((int)k, 0, midPosn, str.toCharArray());
+    return naive((int)k, str);
   }
 
   private void handleTestCase(int testCase) throws IOException {
