@@ -20,9 +20,17 @@ class SolutionTest {
       for (int k = 1; k <= 5; k++) {
         for (int n = 1; n <= 7; n++) {
           for (String s : Solution.generateAll(n, k)) {
-            assertEquals(naive(5, s), Solution.solve(0, 5, s), s + " n=" + n + " k=" + k);
+            assertEquals(naive(5, s), Solution.solve(n, 5, s), s + " n=" + n + " k=" + k);
           }
         }
       }
+    }
+
+    @Test
+    public void testFailingCase() {
+      String s = "abb";
+      int n = 3;
+      int k = 2;
+      assertEquals(naive(5, s), Solution.solve(0, 5, s), s + " n=" + n + " k=" + k);
     }
 }

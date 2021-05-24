@@ -108,7 +108,61 @@ public class Solution {
   }
 
   /**
+   * Size 1
+   * s1
+   * x1
+   * then
+   * x1 < s1
+   * so max(s1-x1, 0)
    *
+   * Size 2
+   * s1 s2
+   * x1 x1
+   * then
+   *    1) x1 < s1
+   *    2) x1 = s1 and x1 < s1
+   * so
+   *    1) max(s1 - x1, 0) * k^0
+   *    2) if s1 < s2 then 1
+   *       else s1 = x1 >= s2 therefore 0
+   *
+   * Size 3
+   * s1 s2 s3
+   * x1 x2 x1
+   * then
+   *      1) x1 < s1
+   *      2) x1 = s1 and x2 < s2
+   *      3) x1 = s1 and x2 = s2 and s1 < s3
+   * so
+   *      1) max(s1-x1, 0) * k^1
+   *      2) max(s2-x2, 0) * k^0
+   *      3) if s1 < s3 then 1
+   *         else s1 = x1 >= s3 then 0
+   * Size 4
+   * s1 s2 s3 s4
+   * x1 x2 x2 x1
+   * then
+   *    1) x1 < x2
+   *    2) x1 = s1 and x2 < s2
+   *    3) x1 = s1 and x2 = s2 and (s2 < s3 || (s2 = s3 and s1 < s4))
+   * so
+   *    1) max(s1-x1, 0) * k^1
+   *    2) max(s2-x2, 0) * k^0
+   *    3) if s1 < s4 or (s2 = s3 and s1 < s4)
+   *       else 0
+   *
+   * Size 5
+   * s1 s2 s3 s4 s5
+   * x1 x2 x3 x2 x1
+   * then
+   *    1) x1 < s1
+   *    2) x1 = s1 and x2 < s2
+   *    3) x1 = s1 and x2 = s2 and x3 < s3
+   *    4) x1 = s1 and x2 = s3 and x3 = x3
+   *       and (
+   *          s2 < s4
+   *          or s2 = s4 and s1 < s5
+   *       )
    */
   public static long solve(
       long n,
@@ -121,8 +175,8 @@ public class Solution {
     } else {
       midPosn = 1 + str.length() / 2;
     }
-    //return solveImpl((int)k, 0, midPosn, str.toCharArray());
-    return naive((int)k, str);
+    return solveImpl((int)k, 0, midPosn, str.toCharArray());
+    //return naive((int)k, str);
   }
 
   private void handleTestCase(int testCase) throws IOException {
