@@ -7,30 +7,52 @@ import org.junit.jupiter.api.Test;
 
 class SolutionTest {
 
-    public static long naive(int k, String s) {
-      return Solution.generateAll(s.length(), k)
-          .stream()
-          .filter(Solution::isPalindrome)
-          .filter(pali -> pali.compareTo(s) < 0)
-          .count();
-    }
-
     @Test
     public void test() {
       for (int k = 1; k <= 5; k++) {
         for (int n = 1; n <= 7; n++) {
           for (String s : Solution.generateAll(n, k)) {
-            assertEquals(naive(5, s), Solution.solve(n, 5, s), s + " n=" + n + " k=" + k);
+            String message = s + " n=" + n + " k=" + k;
+            try {
+              assertEquals(Solution.naive(k, s), Solution.solve(n, k, s), message);
+            } catch (Exception e) {
+              System.out.println(message);
+              throw e;
+            }
           }
         }
       }
     }
 
-    @Test
-    public void testFailingCase() {
-      String s = "abb";
-      int n = 3;
-      int k = 2;
-      assertEquals(naive(5, s), Solution.solve(0, 5, s), s + " n=" + n + " k=" + k);
-    }
+  @Test
+  public void testFailingCase() {
+    String s = "abb";
+    int n = 3;
+    int k = 2;
+    assertEquals(Solution.naive(k, s), Solution.solve(n, k, s), s + " n=" + n + " k=" + k);
+  }
+
+  @Test
+  public void testFailingCase2() {
+    String s = "abba";
+    int n = 4;
+    int k = 2;
+    assertEquals(Solution.naive(k, s), Solution.solve(n, k, s), s + " n=" + n + " k=" + k);
+  }
+
+  @Test
+  public void testFailingCase3() {
+    String s = "aaba";
+    int n = 4;
+    int k = 2;
+    assertEquals(Solution.naive(k, s), Solution.solve(n, k, s), s + " n=" + n + " k=" + k);
+  }
+
+  @Test
+  public void testFailingCase4() {
+    String s = "baba";
+    int n = 4;
+    int k = 2;
+    assertEquals(Solution.naive(k, s), Solution.solve(n, k, s), s + " n=" + n + " k=" + k);
+  }
 }

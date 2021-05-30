@@ -46,41 +46,21 @@ public class Solution {
       int midPosn,
       char [] str
   ) {
-    if (currentPosn == midPosn-1) {
-      if (currentPosn + 1 < str.length) {
-        if (str.length % 2 == 0) {
-          final char a = str[currentPosn];
-          final char b = str[currentPosn + 1];
+    if (str.length == 0) {
+      return 0;
+    }
 
-          if (a < b) {
-            // input bc
-            // aa
-            // bb
-            return a - 96;
-          } else if (b > a) {
-            // input cb
-            // aa
-            // bb
-            return b - 96;
-          } else {
-            // input bb
-            // aa
-            // bb
-            return a - 97;
-          }
-        } else {
-          final char a = str[currentPosn];
-          final char b = str[currentPosn + 1];
-
-          if (a < b) {
-            return a - 96;
-          } else {
-            return a - 97;
-          }
+    if (currentPosn == midPosn) {
+      for (int i = midPosn-1; i >= 0; i--) {
+        final char a = str[i];
+        final char b = str[str.length-i-1];
+        if (a > b) {
+          return 0;
+        } else if (a < b) {
+          return 1;
         }
-      } else {
-        return str[currentPosn] - 97;
       }
+      return 0;
     }
 
     final char a = str[currentPosn];
@@ -105,6 +85,10 @@ public class Solution {
 
       return (sameAsACount + numFreeCharacters) % 1000000007;
     }
+  }
+
+  private static long solveSmall(int k, String str) {
+    return naive(k, str);
   }
 
   /**
@@ -169,6 +153,10 @@ public class Solution {
       long k,
       String str
   ) {
+    if (str.length() <= 3) {
+      return solveSmall((int)k, str);
+    }
+
     final int midPosn;
     if (str.length() % 2 == 0) {
       midPosn = str.length() / 2;
