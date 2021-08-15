@@ -96,11 +96,25 @@ public class Solution {
     writer.write("\n");
   }
 
+  public String longArrayToString(Collection<Long> longArray) {
+    return longArray.stream()
+	    .map(l -> l.toString())
+	    .collect(Collectors.joining(" "));
+  }
+
   public void parseAndSolveProblems() throws IOException {
     long testCases = parseLongLine();
     for (int i = 1; i <= testCases; i++) {
       handleTestCase(i);
     }
+  }
+
+  private static long pow(long base, long exponent, long mod) {
+    long result = 1;
+    for (int i = 0; i < exponent; i++)  {
+      result = (result * base) % mod;
+    }
+    return result;
   }
 
   private static long sqrt(long size) {
