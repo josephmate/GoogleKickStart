@@ -7,18 +7,63 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+  public static void tryMiddle(
+      long first,
+      long third,
+      Map<Long, Long> potentialMiddles) {
+    if ((first + third)%2 == 0) {
+      potentialMiddles.merge((first + third)/2, 1L, Long::sum);
+    }
+  }
+
   /**
-   * At index i, what is the longest ascending run.
-   * <p>Naive would be to for each i, check i to i-j, j until not increasing.
-   * This would be O(N^2).</p>
-   * <p>We can re-use the calculation from the previous i-i. If it's no
-   * strictinly increasing, we reset the accumulator to 1. This results in
-   * O(N) since we only have to pass over the array once.</p>
+   * Try all the lines not involving the middle:
+   * 1 2 3      _ _ _
+   * _ _ _      _ _ _
+   * _ _ _      1 2 3
+   *
+   * 1 _ _      _ _ 1
+   * 2 _ _      _ _ 2
+   * 3 _ _      _ _ 3
+   *
+   * Then the remaining that involve the middle:
+   * _ _ _    _ 1 _
+   * 1 2 3    _ 2 _
+   * _ _ _    _ 3 _
+   *
+   * 1 _ _    _ _ 3
+   * _ 2 _    _ 2 _
+   * _ _ 3    1 _ _
    */
   public static long solve(
       long [][] g
   ) {
-    return 0;
+    long numOfArithmeticSeqs = 0;
+    if (g[0][1] - g[0][0] + g[0][1] == g[0][2]) {
+      numOfArithmeticSeqs++;
+    }
+    if (g[2][1] - g[2][0] + g[2][1] == g[2][2]) {
+      numOfArithmeticSeqs++;
+    }
+    if (g[1][0] - g[0][0] + g[1][0] == g[2][0]) {
+      numOfArithmeticSeqs++;
+    }
+    if (g[1][2] - g[0][2] + g[1][2] == g[2][2]) {
+      numOfArithmeticSeqs++;
+    }
+
+    Map<Long, Long> potentialMiddles = new HashMap<>();
+    tryMiddle(g[1][0], g[1][2], potentialMiddles);
+    tryMiddle(g[0][1], g[2][1], potentialMiddles);
+    tryMiddle(g[0][0], g[2][2], potentialMiddles);
+    tryMiddle(g[2][0], g[0][2], potentialMiddles);
+
+    // other 
+    return numOfArithmeticSeqs +
+      potentialMiddles.values().stream()
+        .mapToLong(i -> i)
+        .max()
+        .orElse(0L);
   }
 
   private void handleTestCase(int testCase) throws IOException {
@@ -28,7 +73,7 @@ public class Solution {
     Triple<Long,Long,Long> g2 = parseTripleLongLine();
     writer.write(String.valueOf(solve(new long[][]{
       {g0.first, g0.second, g0.third},
-      {g1.first, g1.second},
+      {g1.first, Integer.MAX_VALUE, g1.second},
       {g2.first, g2.second, g2.third}
     })));
     writer.write("\n");
