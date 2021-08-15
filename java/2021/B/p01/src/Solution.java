@@ -7,11 +7,30 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+  /**
+   * At index i, what is the longest ascending run.
+   * <p>Naive would be to for each i, check i to i-j, j until not increasing.
+   * This would be O(N^2).</p>
+   * <p>We can re-use the calculation from the previous i-i. If it's no
+   * strictinly increasing, we reset the accumulator to 1. This results in
+   * O(N) since we only have to pass over the array once.</p>
+   */
   public static List<Long> solve(
       long n,
       String str
   ) {
-    return Arrays.asList(0L);
+    List<Long> result = new ArrayList<>();
+    long accumulator = 0;
+    for(int i = 0; i < n; i++) {
+      if (i > 0 && str.charAt(i-1) >= str.charAt(i)) {
+        // check the previous character to see if we're still strictly
+        // increasing
+        accumulator = 0;
+      }
+      accumulator++;
+      result.add(accumulator);
+    }
+    return result;
   }
 
   private void handleTestCase(int testCase) throws IOException {
