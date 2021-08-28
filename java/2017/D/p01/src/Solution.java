@@ -68,6 +68,20 @@ public class Solution {
    * that too large.
    *
    * At this point, I gave up and checking the analysis that google provided.
+   *
+   * Google analysis says it's a dynamic programming question. Looks like I
+   * didn't formulate the problem properly. I formulated the problem as:
+   * F( N cities ) = F( first N - 1 cities) + other work using last city
+   * and
+   * F( N cities ) = F( last N - 1 cities) + other work using first city
+   *
+   * The proper formulation is:
+   * f(i, j) = maximum number of cities I can see
+   *            if I arrive at city i by time j
+   * 
+   * This can be solved by considering two sub problems and selecting the min.
+   * 1) Arriving at i, already visiting j cities
+   * 2) Arriving at i, only visiting j-1 cities, then sight seeing for Ts
    */
   public static Optional<Long> solveImpl(
       final long sightSeeingTime,
