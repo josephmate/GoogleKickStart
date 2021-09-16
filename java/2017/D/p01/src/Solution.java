@@ -76,18 +76,73 @@ public class Solution {
    * F( N cities ) = F( last N - 1 cities) + other work using first city
    *
    * The proper formulation is:
-   * f(i, j) = maximum number of cities I can see
-   *            if I arrive at city i by time j
-   * 
+   * f(i, j) = earliest arrival time at city i sightseeing exactly j cities 
+   *
    * This can be solved by considering two sub problems and selecting the min.
    * 1) Arriving at i, already visiting j cities
    * 2) Arriving at i, only visiting j-1 cities, then sight seeing for Ts
    */
+  public static long calcEarliestArrivalTime(
+      final long sightSeeingTime,
+      final List<Triple<Long, Long, Long>> cities,
+      final int targetCity,
+      final int targetSightSeeing,
+      Map<Integer, Map<Integer, Long>> cache
+  ) {
+    // we already computed this result
+    if (cache.containsKey(targetCity) && cache.get(targetCity).containsKey(targetSightSeeing)) {
+      return cache.get(targetCity).get(targetSightSeeing);
+    }
+
+    // base case
+    if (targetCity == 1) {
+      if (targetSightSeeing > 1) {
+        throw new IllegalStateException("You programmed a bug. Trying to visit "
+                + targetSightSeeing + " cities but only 1 city left");
+        if (targetSightSeeing == 1) {
+          updateCache(1, 1, cache, sightSeeingTime);
+          return sightSeeingTime;
+        } else {
+          updateCache(1, 1, cache, 0);
+          return 0;
+        }
+      }
+    }
+  }
+
+  private static void updateCache(final int targetCity,
+                             final int targetSightSeeing,
+                             Map<Integer, Map<Integer, Long>> cache,
+                             final long value) {
+    final Map<Integer,Long> subMap;
+    if (cache.containsKey(targetCity)) {
+      subMap = cache.get(targetCity);
+    } else {
+      subMap = new HashMap<>();
+      cache.put(targetCity, subMap);
+    }
+    subMap.put(targetSightSeeing, value);
+  }
+
   public static Optional<Long> solveImpl(
       final long sightSeeingTime,
       final long latestArrivalTime,
       final List<Triple<Long, Long, Long>> cities
   ) {
+    // there is a bus leaving from city i at all times Si + xFi
+    // bus takes Di time to reach city i + 1
+    // [Si, Fi, Di]
+    for (int i = cities.size(); i >= 0; i--) {
+      long earliestArrivalTime = calcEarliestArrivalTime(
+          sightSeeingTime,
+          latestArrivalTime,
+          cities,
+          cities.size() + 1,
+          i);
+      if (earliestArrivalTime <= latestArrivalTime) {
+        return Optional.of(new Long(i));
+      }
+    }
     return Optional.empty();
   }
 
