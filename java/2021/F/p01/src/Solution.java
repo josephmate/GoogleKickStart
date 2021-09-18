@@ -8,21 +8,45 @@ import java.util.stream.Stream;
 public class Solution {
 
   public static long solve(
-      long [][] g
+      long n,
+      String line
   ) {
-    return 0L;
+    NavigableSet<Integer> housesWithBins = new TreeSet<>();
+    for(int i = 0; i < line.length(); i++) {
+      if (line.charAt(i) == '1') {
+        housesWithBins.add(i);
+      }
+    }
+
+    long distanceSum = 0;
+    for(int i = 0; i < line.length(); i++) {
+      if (!housesWithBins.contains(i)) {
+        Integer nearestLower = housesWithBins.lower(i);
+        Integer nearestHigher = housesWithBins.higher(i);
+
+        int nearest = Integer.MAX_VALUE;
+        if (nearestLower != null) {
+          nearest = Math.abs(i - nearestLower);
+        }
+        if (nearestHigher != null && Math.abs(i - nearestHigher) < nearest) {
+          nearest = Math.abs(i - nearestHigher);
+        }
+
+        distanceSum += nearest;
+      }
+    }
+
+    return distanceSum;
   }
 
   private void handleTestCase(int testCase) throws IOException {
     writer.write("Case #" + testCase + ": ");
-    Triple<Long,Long,Long> g0 = parseTripleLongLine();
-    Pair<Long,Long> g1 = parsePairLongLine();
-    Triple<Long,Long,Long> g2 = parseTripleLongLine();
-    writer.write(String.valueOf(solve(new long[][]{
-      {g0.first, g0.second, g0.third},
-      {g1.first, Integer.MAX_VALUE, g1.second},
-      {g2.first, g2.second, g2.third}
-    })));
+    long n = parseLongLine();
+    String line = parseStringLine();
+    writer.write(String.valueOf(solve(
+      n,
+            line
+    )));
     writer.write("\n");
   }
 

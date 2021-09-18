@@ -7,22 +7,86 @@ import java.util.stream.Stream;
 
 public class Solution {
 
+  private static void addToMap(NavigableMap<Long, List<Long>> map,
+                   long key,
+                   long value) {
+    final List<Long> values;
+    if (map.containsKey(key)) {
+      values = map.get(key);
+    } else {
+      values = new ArrayList<>();
+      map.put(key, values);
+    }
+    values.add(value);
+  }
+
+  /**
+   *
+   */
   public static long solve(
-      long [][] g
+          long numDaysOpen,
+          long n,
+          long k,
+          List<Triple<Long, Long, Long>> hses
   ) {
-    return 0L;
+    /*
+    NavigableMap<Long, List<Long>> startDayToRideScores = new TreeMap<>();
+    NavigableMap<Long, List<Long>> endDayToRideScores = new TreeMap<>();
+    for(Triple<Long, Long, Long> hse : hses) {
+      long happiness = hse.first;
+      long start = hse.second;
+      long end = hse.third;
+      addToMap(startDayToRideScores, start, happiness);
+      addToMap(endDayToRideScores, end, happiness);
+    }
+     */
+
+    Map<Long, List<Long>> dayScores = new HashMap<>();
+    for (long currentDay = 0; currentDay < numDaysOpen; currentDay++) {
+      dayScores.put(currentDay, new ArrayList<>());
+    }
+
+    for(Triple<Long, Long, Long> hse : hses) {
+      long happiness = hse.first;
+      long start = hse.second;
+      long end = hse.third;
+
+      for (long rideRunningDate = start-1; rideRunningDate <= end-1; rideRunningDate++) {
+        dayScores.get(rideRunningDate).add(happiness);
+      }
+    }
+
+    long maxSoFar = 0;
+    for (long currentDay = 0; currentDay < numDaysOpen; currentDay++) {
+      List<Long> happinesses = dayScores.get(currentDay);
+      Collections.sort(happinesses);
+      Collections.reverse(happinesses);
+
+      long currentScore = 0;
+      for (int rideNumber = 0; rideNumber < happinesses.size() && rideNumber < k ; rideNumber++) {
+        currentScore += happinesses.get(rideNumber);
+      }
+      if (currentScore > maxSoFar) {
+        maxSoFar = currentScore;
+      }
+    }
+
+    return maxSoFar;
   }
 
   private void handleTestCase(int testCase) throws IOException {
     writer.write("Case #" + testCase + ": ");
-    Triple<Long,Long,Long> g0 = parseTripleLongLine();
-    Pair<Long,Long> g1 = parsePairLongLine();
-    Triple<Long,Long,Long> g2 = parseTripleLongLine();
-    writer.write(String.valueOf(solve(new long[][]{
-      {g0.first, g0.second, g0.third},
-      {g1.first, Integer.MAX_VALUE, g1.second},
-      {g2.first, g2.second, g2.third}
-    })));
+    Triple<Long,Long,Long> triple = parseTripleLongLine();
+    long d = triple.first;
+    long n = triple.second;
+    long k = triple.third;
+    List<Solution.Triple<Long, Long, Long>> triples = parseManyLongTriples((int)n);
+    writer.write(String.valueOf(solve(
+      d,
+      n,
+      k,
+      triples
+    )));
     writer.write("\n");
   }
 

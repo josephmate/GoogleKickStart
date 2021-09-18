@@ -7,22 +7,37 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-  public static long solve(
-      long [][] g
+  public static Optional<Double> solveImpl(
+          int n,
+          List<Pair<Long, Long>> starCoords,
+          long Xs,
+          long Ys
   ) {
-    return 0L;
+    return Optional.empty();
+  }
+
+  public static String solve(
+      int n,
+      List<Pair<Long, Long>> starCoords,
+      long Xs,
+      long Ys
+  ) {
+    return solveImpl(n, starCoords, Xs, Ys)
+            .map(String::valueOf)
+            .orElse("IMPOSSIBLE");
   }
 
   private void handleTestCase(int testCase) throws IOException {
     writer.write("Case #" + testCase + ": ");
-    Triple<Long,Long,Long> g0 = parseTripleLongLine();
-    Pair<Long,Long> g1 = parsePairLongLine();
-    Triple<Long,Long,Long> g2 = parseTripleLongLine();
-    writer.write(String.valueOf(solve(new long[][]{
-      {g0.first, g0.second, g0.third},
-      {g1.first, Integer.MAX_VALUE, g1.second},
-      {g2.first, g2.second, g2.third}
-    })));
+    int n = parseIntLine();
+    List<Pair<Long, Long>> pairs = parseManyLongPairs(n);
+    Pair<Long, Long> pair = parsePairLongLine();
+    writer.write(String.valueOf(solve(
+      n,
+      pairs,
+      pair.first,
+      pair.second
+    )));
     writer.write("\n");
   }
 
