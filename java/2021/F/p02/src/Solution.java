@@ -42,6 +42,7 @@ public class Solution {
           long k,
           List<Triple<Long, Long, Long>> hses
   ) {
+    Set<Long> potentialDays = new HashSet<>();
     NavigableMap<Long, Set<Long>> startDayToRides = new TreeMap<>();
     NavigableMap<Long, Set<Long>> endDayToRides = new TreeMap<>();
     for(int rideNum = 0; rideNum < hses.size(); rideNum++) {
@@ -49,16 +50,18 @@ public class Solution {
       long end = hses.get(rideNum).third;
       addToMap(startDayToRides, start, rideNum);
       addToMap(endDayToRides, end, rideNum);
+      potentialDays.add(start);
+      potentialDays.add(end);
     }
 
     long maxSoFar = 0;
-    for (long currentDay = 1; currentDay <= numDaysOpen; currentDay++) {
-      Set<Long> ridesWithStartBeforeCurrentDay = startDayToRides.headMap(currentDay, true)
+    for (Long potentialDay : potentialDays) {
+      Set<Long> ridesWithStartBeforeCurrentDay = startDayToRides.headMap(potentialDay, true)
               .values()
               .stream()
               .flatMap(Set::stream)
               .collect(Collectors.toSet());
-      Set<Long> ridesWithEndBeforeCurrentDay = endDayToRides.tailMap(currentDay, true)
+      Set<Long> ridesWithEndBeforeCurrentDay = endDayToRides.tailMap(potentialDay, true)
               .values()
               .stream()
               .flatMap(Set::stream)
