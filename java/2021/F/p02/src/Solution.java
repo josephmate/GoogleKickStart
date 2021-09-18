@@ -7,14 +7,27 @@ import java.util.stream.Stream;
 
 public class Solution {
 
-  private static void addToMap(NavigableMap<Long, List<Long>> map,
+  private static Set<Long> intersect(
+          Set<Long> as,
+          Set<Long> bs
+  ) {
+    Set<Long> intersection = new HashSet<>();
+    for (Long a : as) {
+      if (bs.contains(a)) {
+        intersection.add(a);
+      }
+    }
+    return intersection;
+  }
+
+  private static void addToMap(NavigableMap<Long, Set<Long>> map,
                    long key,
                    long value) {
-    final List<Long> values;
+    final Set<Long> values;
     if (map.containsKey(key)) {
       values = map.get(key);
     } else {
-      values = new ArrayList<>();
+      values = new HashSet<>();
       map.put(key, values);
     }
     values.add(value);
@@ -29,45 +42,45 @@ public class Solution {
           long k,
           List<Triple<Long, Long, Long>> hses
   ) {
-    /*
-    NavigableMap<Long, List<Long>> startDayToRideScores = new TreeMap<>();
-    NavigableMap<Long, List<Long>> endDayToRideScores = new TreeMap<>();
-    for(Triple<Long, Long, Long> hse : hses) {
-      long happiness = hse.first;
-      long start = hse.second;
-      long end = hse.third;
-      addToMap(startDayToRideScores, start, happiness);
-      addToMap(endDayToRideScores, end, happiness);
-    }
-     */
-
-    Map<Long, List<Long>> dayScores = new HashMap<>();
-    for (long currentDay = 0; currentDay < numDaysOpen; currentDay++) {
-      dayScores.put(currentDay, new ArrayList<>());
-    }
-
-    for(Triple<Long, Long, Long> hse : hses) {
-      long happiness = hse.first;
-      long start = hse.second;
-      long end = hse.third;
-
-      for (long rideRunningDate = start-1; rideRunningDate <= end-1; rideRunningDate++) {
-        dayScores.get(rideRunningDate).add(happiness);
-      }
+    NavigableMap<Long, Set<Long>> startDayToRides = new TreeMap<>();
+    NavigableMap<Long, Set<Long>> endDayToRides = new TreeMap<>();
+    for(int rideNum = 0; rideNum < hses.size(); rideNum++) {
+      long start = hses.get(rideNum).second;
+      long end = hses.get(rideNum).third;
+      addToMap(startDayToRides, start, rideNum);
+      addToMap(endDayToRides, end, rideNum);
     }
 
     long maxSoFar = 0;
-    for (long currentDay = 0; currentDay < numDaysOpen; currentDay++) {
-      List<Long> happinesses = dayScores.get(currentDay);
-      Collections.sort(happinesses);
-      Collections.reverse(happinesses);
+    for (long currentDay = 1; currentDay <= numDaysOpen; currentDay++) {
+      Set<Long> ridesWithStartBeforeCurrentDay = startDayToRides.headMap(currentDay, true)
+              .values()
+              .stream()
+              .flatMap(Set::stream)
+              .collect(Collectors.toSet());
+      Set<Long> ridesWithEndBeforeCurrentDay = endDayToRides.tailMap(currentDay, true)
+              .values()
+              .stream()
+              .flatMap(Set::stream)
+              .collect(Collectors.toSet());
+      Set<Long> intersection = intersect(ridesWithEndBeforeCurrentDay, ridesWithStartBeforeCurrentDay);
 
-      long currentScore = 0;
-      for (int rideNumber = 0; rideNumber < happinesses.size() && rideNumber < k ; rideNumber++) {
-        currentScore += happinesses.get(rideNumber);
-      }
-      if (currentScore > maxSoFar) {
-        maxSoFar = currentScore;
+      if (!intersection.isEmpty()) {
+        // drop everything into a heap and get the k largest elements
+        PriorityQueue<Long> heap = new PriorityQueue<>(intersection.size(), Comparator.reverseOrder());
+        for(Long rideNum : intersection) {
+          heap.add(hses.get(rideNum.intValue()).first);
+        }
+
+        int elements = 0;
+        long scoreSoFar = 0;
+        while (!heap.isEmpty() && elements < k) {
+          scoreSoFar += heap.poll();
+          elements++;
+        }
+        if (scoreSoFar > maxSoFar) {
+          maxSoFar = scoreSoFar;
+        }
       }
     }
 
