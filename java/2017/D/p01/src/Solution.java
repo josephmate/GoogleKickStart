@@ -79,13 +79,13 @@ public class Solution {
    * f(i, j) = earliest arrival time at city i sightseeing exactly j cities 
    *
    * This can be solved by considering two sub problems and selecting the min.
-   * 1) Arriving at i, already visiting j cities
-   * 2) Arriving at i, only visiting j-1 cities, then sight seeing for Ts
+   * 1) Arriving at i-1, already visiting j cities, then travelling to i
+   * 2) Arriving at i-1, only visiting j-1 cities, then sight seeing for Ts, then travelling to i
    */
   public static long calcEarliestArrivalTime(
       final long sightSeeingTime,
       final List<Triple<Long, Long, Long>> cities,
-      final int targetCity,
+      final int targetCity, // 0 indexed
       final int targetSightSeeing,
       Map<Integer, Map<Integer, Long>> cache
   ) {
@@ -99,15 +99,69 @@ public class Solution {
       if (targetSightSeeing > 1) {
         throw new IllegalStateException("You programmed a bug. Trying to visit "
                 + targetSightSeeing + " cities but only 1 city left");
-        if (targetSightSeeing == 1) {
-          updateCache(1, 1, cache, sightSeeingTime);
-          return sightSeeingTime;
-        } else {
-          updateCache(1, 1, cache, 0);
-          return 0;
-        }
+      } else if (targetSightSeeing == 1) {
+        updateCache(1, 1, cache, sightSeeingTime);
+        return sightSeeingTime;
+      } else {
+        updateCache(1, 1, cache, 0);
+        return 0;
       }
     }
+
+    long minSoFar = Long.MAX_VALUE;
+    // Arriving at i-1, already visiting j cities, then travelling to i
+    if (targetCity - 1 > targetSightSeeing) {
+      long subProblem1 = calcEarliestArrivalTime(
+              sightSeeingTime,
+              cities,
+              targetCity - 1,
+              targetSightSeeing,
+              cache);
+      // now we need to travel from i-1 to i
+      subProblem1 = travelToNextCity(subProblem1, targetCity - 1, cities);
+      minSoFar = subProblem1;
+    }
+
+    // 2) Arriving at i-1, only visiting j-1 cities, then sight seeing for Ts, then travelling to i
+    if (targetCity - 1 > targetSightSeeing - 1) {
+      long subProblem2 = calcEarliestArrivalTime(
+              sightSeeingTime,
+              cities,
+              targetCity - 1,
+              targetSightSeeing,
+              cache);
+      // now we need to wait targetSightSeeing
+      subProblem2 += targetSightSeeing;
+      // now we need to travel from i-1 to i
+      subProblem2 = travelToNextCity(subProblem2, targetCity - 1, cities);
+      if (subProblem2 < minSoFar) {
+        minSoFar = subProblem2;
+      }
+    }
+    updateCache(targetCity, targetSightSeeing, cache, minSoFar);
+    return minSoFar;
+  }
+
+  private static long travelToNextCity(
+          final long currentTime,
+          final int currentCity, // 0 indexed
+          List<Triple<Long, Long, Long>> cities
+  ) {
+    // there is a bus leaving from city i at all times Si + xFi,
+    // where x is an integer and x ≥ 0,
+    // and the bus takes Di time to reach city i + 1
+
+    final long s = cities.get(currentCity).first;
+    final long f = cities.get(currentCity).second;
+    final long d = cities.get(currentCity).third;
+    final long x;
+    if ( (currentCity-s) % f == 0 ) {
+      x = (currentCity-s) / f;
+    } else {
+      x = 1 + ((currentCity-s) / f);
+    }
+
+    return s + x*f + d;
   }
 
   private static void updateCache(final int targetCity,
@@ -132,15 +186,16 @@ public class Solution {
     // there is a bus leaving from city i at all times Si + xFi
     // bus takes Di time to reach city i + 1
     // [Si, Fi, Di]
+    Map<Integer, Map<Integer, Long>> cache = new HashMap<>();
     for (int i = cities.size(); i >= 0; i--) {
       long earliestArrivalTime = calcEarliestArrivalTime(
           sightSeeingTime,
-          latestArrivalTime,
           cities,
-          cities.size() + 1,
-          i);
+          cities.size(),
+          i,
+          cache);
       if (earliestArrivalTime <= latestArrivalTime) {
-        return Optional.of(new Long(i));
+        return Optional.of(Long.valueOf(i));
       }
     }
     return Optional.empty();
