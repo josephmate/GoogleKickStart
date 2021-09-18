@@ -95,22 +95,25 @@ public class Solution {
     }
 
     // base case
-    if (targetCity == 1) {
-      if (targetSightSeeing > 1) {
-        throw new IllegalStateException("You programmed a bug. Trying to visit "
-                + targetSightSeeing + " cities but only 1 city left");
-      } else if (targetSightSeeing == 1) {
-        updateCache(1, 1, cache, sightSeeingTime);
-        return sightSeeingTime;
+    // the earliest we can arrive at city 0 (the city we start at!)
+    // is 0
+    if (targetCity == 0) {
+      if (targetSightSeeing >= 1) {
+        updateCache(targetCity, targetSightSeeing, cache, Long.MAX_VALUE);
+        return Long.MAX_VALUE;
       } else {
-        updateCache(1, 1, cache, 0);
+        updateCache(targetCity, targetSightSeeing, cache, 0);
         return 0;
       }
     }
 
     long minSoFar = Long.MAX_VALUE;
     // Arriving at i-1, already visiting j cities, then travelling to i
-    if (targetCity - 1 > targetSightSeeing) {
+    // there is no way we can do enough sight seeing if targetCity -1 < targetSightSeeing
+    // for example if we're are at city 2 with target 2,
+    // that means we need to arrive at city 1, with 2 sight seeing.
+    // there is only 1 city before city 1!
+    if (targetCity - 1 >= targetSightSeeing) {
       long subProblem1 = calcEarliestArrivalTime(
               sightSeeingTime,
               cities,
@@ -123,12 +126,12 @@ public class Solution {
     }
 
     // 2) Arriving at i-1, only visiting j-1 cities, then sight seeing for Ts, then travelling to i
-    if (targetCity - 1 > targetSightSeeing - 1) {
+    if (targetCity >= targetSightSeeing) {
       long subProblem2 = calcEarliestArrivalTime(
               sightSeeingTime,
               cities,
               targetCity - 1,
-              targetSightSeeing,
+              targetSightSeeing - 1,
               cache);
       // now we need to wait targetSightSeeing
       subProblem2 += targetSightSeeing;
@@ -155,10 +158,10 @@ public class Solution {
     final long f = cities.get(currentCity).second;
     final long d = cities.get(currentCity).third;
     final long x;
-    if ( (currentCity-s) % f == 0 ) {
-      x = (currentCity-s) / f;
+    if ( (currentTime-s) % f == 0 ) {
+      x = (currentTime-s) / f;
     } else {
-      x = 1 + ((currentCity-s) / f);
+      x = 1 + ((currentTime-s) / f);
     }
 
     return s + x*f + d;
@@ -286,7 +289,7 @@ public class Solution {
     }
   }
 
-  private static final class Triple<X,Y,Z> extends Pair<X,Y> {
+  public static final class Triple<X,Y,Z> extends Pair<X,Y> {
     public final Z third;
 
     public Triple(X first, Y second, Z third) {
