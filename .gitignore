@@ -7,10 +7,8 @@ build/
 *~
 *.swp
 
-.idea/
 lib/
 target/
 
 *.class
 
-*.iml
