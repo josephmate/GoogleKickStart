@@ -70,17 +70,15 @@ public class Solution {
 
       if (!intersection.isEmpty()) {
         // drop everything into a heap and get the k largest elements
-        PriorityQueue<Long> heap = new PriorityQueue<>(intersection.size(), Comparator.reverseOrder());
+        PriorityQueue<Long> heap = new PriorityQueue<>((int)k+1);
         for(Long rideNum : intersection) {
           heap.add(hses.get(rideNum.intValue()).first);
+          if (heap.size() > k ){
+            heap.poll();
+          }
         }
 
-        int elements = 0;
-        long scoreSoFar = 0;
-        while (!heap.isEmpty() && elements < k) {
-          scoreSoFar += heap.poll();
-          elements++;
-        }
+        long scoreSoFar = heap.stream().mapToLong(Long::longValue).sum();
         if (scoreSoFar > maxSoFar) {
           maxSoFar = scoreSoFar;
         }
